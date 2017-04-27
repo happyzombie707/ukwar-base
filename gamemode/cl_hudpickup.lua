@@ -1,4 +1,4 @@
-RUNTIME_LOG("ENTERED cl_hudpickup.lua")
+--RUNTIME_LOG("ENTERED cl_hudpickup.lua")
 
 GM.PickupHistory = {}
 GM.PickupHistoryLast = 0

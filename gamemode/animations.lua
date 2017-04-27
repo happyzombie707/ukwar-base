@@ -1,4 +1,4 @@
-RUNTIME_LOG("ENTERED animations.lua")
+--RUNTIME_LOG("ENTERED animations.lua")
 
 function GM:HandlePlayerJumping( ply, velocity )
 

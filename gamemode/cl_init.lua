@@ -1,4 +1,4 @@
-RUNTIME_LOG("ENTERED CL_INIT.lua")
+--RUNTIME_LOG("ENTERED CL_INIT.lua")
 
 include( "shared.lua" )
 include( "cl_scoreboard.lua" )
