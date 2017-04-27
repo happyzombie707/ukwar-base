@@ -1,3 +1,8 @@
+--[[TODO
+	remove magic numbers for the teams, replace with constant or whatever lua has instead of a constant, possibly a table
+	improve team balance, add autobalance if one team has a much greater score than the other
+]]
+
 RUNTIME_LOG("ENTERED INIT.LUA")
 
 AddCSLuaFile("shared.lua")
@@ -9,11 +14,53 @@ include( 'player.lua' )
 include( 'npc.lua' )
 include( 'variable_edit.lua' )
 
+--net messages
+util.AddNetworkString( "ShowMenu" )
+util.AddNetworkString( "ChangeTeam" )
+
 function RUNTIME_LOG(str_string)
 	print(">>> " .. str_string)
 end
 
 GM.PlayerSpawnTime = {}
+
+--[[---------------------------------------------------------
+   Name: gamemode:PlayerInitialSpawn()
+   Desc: Called on a player's initial spawn
+-----------------------------------------------------------]]
+function GM:PlayerInitialSpawn( ply )
+	
+	--try to keep team numbers roughly even
+	if(team.NumPlayers(1) < team.NumPlayers(2)) then
+		ply:SetTeam( 1 )
+	else
+		ply:SetTeam(2)
+	end
+	--spawn message
+	print("Player: " .. ply:Nick() .. ", has spawned on the " .. team.GetName(ply:Team()) .. " team.")
+	PlayerClasses.Add(ply, 0)
+end
+
+--[[---------------------------------------------------------
+   Name: gamemode:PlayerSpawn()
+   Desc: Called whenever a player spawns
+-----------------------------------------------------------]]
+function GM:PlayerSpawn( ply )
+
+	--player_manager.SetPlayerClass( ply, "player_team" ) custom class, WIP
+	
+	print("Player " .. ply:Nick() .. " spawning on team " .. ply:Team())
+	
+	--set playermodel colour based on team
+	if (ply:Team()== 1) then
+		ply:SetPlayerColor( Vector( 1,0.2,0.2 ) )
+	elseif (ply:Team()== 2) then
+		ply:SetPlayerColor( Vector(0.2,0.2,1) )
+	else
+		ply:SetPlayerColor( Vector(0.25,0.25,0.25) )
+	end
+
+end
 
 --[[---------------------------------------------------------
    Name: gamemode:Initialize()
@@ -41,6 +88,22 @@ end
    Desc: Called when the Lua system is about to shut down
 -----------------------------------------------------------]]
 function GM:ShutDown()
+end
+
+--[[---------------------------------------------------------
+   Name: gamemode:PlayerShouldTakeDamage( )
+   Desc: Checks whether a player should take damage from attacks
+-----------------------------------------------------------]]
+function GM:PlayerShouldTakeDamage( ply, victim )
+
+	if (ply:IsPlayer()) and (victim:IsPlayer()) then       --if attacker and victim are both players
+		if (ply:Team() ~=3) or (victim:Team() ~=3) then    --if neither of the people are on free for all
+			if (ply:Team()) == (victim:Team()) then        --and if they are on the same team
+				return false							   --take no damage	
+			end
+		end
+	end
+	return true											   --otherwise take damage
 end
 
 --[[---------------------------------------------------------
@@ -164,3 +227,28 @@ function GM:VehicleMove( ply, vehicle, mv )
 	end
 
 end
+
+--CUSTOM FUNCTIONS FOR HOOKS AND NET MESSAGES AND STUFF
+
+--[[---------------------------------------------------------
+   Name: Anonymous function
+   Desc: Callback function, called when a player changes team with the team menu
+-----------------------------------------------------------]]
+net.Receive( "ChangeTeam", function( len, ply )
+	 ply:SetTeam(net.ReadUInt(4))
+	 ply:Spawn()
+end )
+
+--[[---------------------------------------------------------
+   Name: ShowTeamMenu()
+   Desc: If the player runs the team command tell their client to open the team menu
+-----------------------------------------------------------]]
+function ShowTeamMenu(ply, text, public, data)
+	if(string.sub(text, 1,5) == "!Team") or (string.sub(text, 1,5) == "!team") then
+		net.Start( "ShowMenu" )			--show menu net message
+		net.WriteUInt(ply:Team(), 4)	--send current team, to be displayed on the menu
+		net.Broadcast()					
+	end
+end
+hook.Add("PlayerSay","ShowTeamMenu",ShowTeamMenu) --add command
+
