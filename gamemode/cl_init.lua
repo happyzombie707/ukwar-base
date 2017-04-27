@@ -13,6 +13,9 @@ include( "cl_deathnotice.lua" )
 include( "cl_pickteam.lua" )
 include( "cl_voice.lua" )
 
+include("gui/team_menu.lua")
+
+
 --[[---------------------------------------------------------
 	Name: gamemode:Initialize()
 	Desc: Called immediately after starting the gamemode
@@ -710,3 +713,10 @@ end
 
 function GM:VehicleMove( ply, vehicle, mv )
 end
+
+--hooks n net mesejes and stuff
+net.Receive ("ShowMenu", function(len, ply)
+	local team = net.ReadUInt(4)
+	ShowTeamMenu(LocalPlayer():Team())
+end)
+
