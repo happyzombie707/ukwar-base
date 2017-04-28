@@ -125,15 +125,20 @@ net.Receive( "NPCKilledNPC", RecvNPCKilledNPC )
 --[[---------------------------------------------------------
    Name: gamemode:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
    Desc: Adds an death notice entry
+
+   Some weird bugs with this, was causing lua errors on fall suicide, fixed the errors, but it still needs work
+   will possibly rewrite sometime
 -----------------------------------------------------------]]
 function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 
 	local Death = {}
 	Death.time		= CurTime()
-
+	print(Attacker)
 	print("[cl_deathnotice.lua] GM:AddDeathNotice")
 
-	Death.left		= "[GIS]" .. Attacker
+	if (Attacker != nil) then
+		Death.left		= "[GIS]" .. Attacker     
+	end
 	Death.right		= "[HNK]" .. Victim
 	Death.icon		= Inflictor
 

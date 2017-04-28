@@ -207,3 +207,10 @@ function meta:GetEyeTraceNoCursor()
 	return self:GetTable().PlayerAimTrace
 
 end
+
+function meta:CanChangeTeam()
+	
+	local TimeBetweenSwitches = GAMEMODE.SecondsBetweenTeamSwitches or 10
+	return (self.LastTeamSwitch && RealTime() - self.LastTeamSwitch > TimeBetweenSwitches)
+
+end

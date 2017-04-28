@@ -6,10 +6,9 @@
 --RUNTIME_LOG("ENTERED INIT.LUA")
 
 AddCSLuaFile("shared.lua")
-include( 'shared.lua' )
-
 AddCSLuaFile("cl_init.lua")
 
+include( 'shared.lua' )
 include( 'player.lua' )
 include( 'npc.lua' )
 include( 'variable_edit.lua' )
@@ -38,6 +37,8 @@ function GM:PlayerInitialSpawn( ply )
 	else
 		ply:SetTeam(2)
 	end
+	ply.LastTeamSwitch = RealTime()
+
 	--spawn message
 	print("Player: " .. ply:Nick() .. ", has spawned on the " .. team.GetName(ply:Team()) .. " team.")
 	--PlayerClasses.Add(ply, 0)
@@ -53,15 +54,19 @@ function GM:PlayerSpawn( ply )
 	
 	print("Player " .. ply:Nick() .. " spawning on team " .. ply:Team())
 	
-	--set playermodel colour based on team
+	--set playermodel colour and spawn location based on team
+	local points = {}
 	if (ply:Team()== 1) then
 		ply:SetPlayerColor( Vector( 1,0.2,0.2 ) )
+		points = ents.FindByClass("spawn_red")			--get all spawn_red entities on server
 	elseif (ply:Team()== 2) then
 		ply:SetPlayerColor( Vector(0.2,0.2,1) )
+		points = ents.FindByClass("spawn_blue")
 	else
-		ply:SetPlayerColor( Vector(0.25,0.25,0.25) )
+		ply:SetPlayerColor( Vector(0.25,0.25,0.25) ) 
 	end
 
+	ply:SetPos(points[math.random(1,#points)]:GetPos())
 end
 
 --[[---------------------------------------------------------
@@ -69,6 +74,38 @@ end
    Desc: Called immediately after starting the gamemode
 -----------------------------------------------------------]]
 function GM:Initialize()
+
+	local spawn_points = {									--proof of concept for storing spawn points as a vector then creating them on	
+		["construct"] ={									--server init
+			["red"] = Vector (397, -699, -147),             --ofc the actual version will get the values from a database or something
+			["blue"] = Vector(358, -243, -147)
+		},
+		["flatgrass"] = {
+			["red"] = Vector(-781, -905, -12287),
+			["blue"] = Vector(-1394, -1677, -12799)
+		}
+
+	}
+
+	local red_spawn = ents.Create("spawn_red")				--create an entity for the spawns
+	local blue_spawn = ents.Create("spawn_blue")
+
+	if(game:GetMap() == "gm_flatgrass") then				
+		red_spawn:SetPos(spawn_points["flatgrass"]["red"])
+		blue_spawn:SetPos(spawn_points["flatgrass"]["blue"])
+	elseif(game:GetMap() == "gm_construct") then
+		red_spawn:SetPos(spawn_points["construct"]["red"])
+		blue_spawn:SetPos(spawn_points["construct"]["blue"])
+	end
+
+	--[[SQL implementation pseudocode
+		x y z = SELECT x y z FROM Red.Spawns WHERE Spawns.map = game.GetMap()
+		red_spawn:SetPos(Vector(x, y, z)) 
+
+	]]
+	red_spawn:Spawn()
+	blue_spawn:Spawn()
+
 end
 
 --[[---------------------------------------------------------
@@ -238,19 +275,42 @@ end
 -----------------------------------------------------------]]
 net.Receive( "ChangeTeam", function( len, ply )
 	 ply:SetTeam(net.ReadUInt(4))
+	 ply.LastTeamSwitch = RealTime()
 	 ply:Spawn()
 end )
+
+function Test(ply, text, public, data)
+	if(string.sub(text:lower(), 1,5) == "!test") then
+		print(ply:CanChangeTeam())
+	end
+end
+hook.Add("PlayerSay", "Test", Test)
 
 --[[---------------------------------------------------------
    Name: ShowTeamMenu()
    Desc: If the player runs the team command tell their client to open the team menu
 -----------------------------------------------------------]]
 function ShowTeamMenu(ply, text, public, data)
-	if(string.sub(text, 1,5) == "!Team") or (string.sub(text, 1,5) == "!team") then
-		net.Start( "ShowMenu" )			--show menu net message
-		net.WriteUInt(ply:Team(), 4)	--send current team, to be displayed on the menu
-		net.Broadcast()					
+	if(string.sub(text:lower(), 1,5) == "!team") then
+		if(ply:CanChangeTeam()) then
+			net.Start( "ShowMenu" )			--show menu net message
+			net.WriteUInt(ply:Team(), 4)	--send current team, to be displayed on the menu
+			net.Broadcast()					
+		else
+			local TimeBetweenSwitches = GAMEMODE.SecondsBetweenTeamSwitches or 10
+			ply:ChatPrint( Format( "Please wait %i more seconds before trying to change team again", ( TimeBetweenSwitches - ( RealTime() - ply.LastTeamSwitch ) ) + 1 ) )
+		end
 	end
 end
 hook.Add("PlayerSay","ShowTeamMenu",ShowTeamMenu) --add command
 
+--[[---------------------------------------------------------
+   Name: PrintLoc()
+   Desc: Test method, used for getting xyz map coordinates
+-----------------------------------------------------------]]
+function PrintLoc(ply, text, public, data)
+	if(string.sub(text:lower(), 1,4) == "!pos") then
+		print (ply:GetPos().x .. ", " .. ply:GetPos().y .. ", " .. ply:GetPos().z)
+	end
+end
+hook.Add("PlayerSay","PrintLoc",PrintLoc)
