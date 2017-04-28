@@ -24,9 +24,9 @@ function ShowTeamMenu(team)
     local DButton = vgui.Create("DButton", Frame)
 
     --Initialise frame
+    Frame:SetSize( 500, 300 )
     Frame:Center()
-    Frame:SetSize( 300, 150 )
-    Frame:SetTitle( "Name window" )
+    Frame:SetTitle( "Change Team" )
     Frame:SetVisible( true )
     Frame:SetDraggable( false )
     Frame:ShowCloseButton( true )
@@ -35,7 +35,7 @@ function ShowTeamMenu(team)
     --Initialise team combobox
     DComboBox_Team:SetPos(5,15)
     DComboBox_Team:SetSize( 150, 20 )
-    DComboBox_Team:SetValue( teams[team] )   --set current team in the combo box to the players current team
+    DComboBox_Team:SetValue( teams[1] )   --set current team in the combo box to the players current team
     DComboBox_Team:AddChoice( "Red" )
     DComboBox_Team:AddChoice( "Blue" )
     --DComboBox_Team:AddChoice( "Free" )
