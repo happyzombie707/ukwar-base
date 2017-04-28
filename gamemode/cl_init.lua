@@ -1,14 +1,17 @@
 --RUNTIME_LOG("ENTERED CL_INIT.lua")
+print("[Runtime_entered] cl_init.lua");
 
+AddCSLuaFile( "shared.lua" )
 include( "shared.lua" )
-include( "cl_scoreboard.lua" )
-include( "cl_targetid.lua" )
-include( "cl_hudpickup.lua" )
-
-include( "cl_spawnmenu.lua" )
 
 AddCSLuaFile("cl_deathnotice.lua")
 include( "cl_deathnotice.lua" )
+
+include( "cl_scoreboard.lua" )
+include( "cl_targetid.lua" )
+include( "cl_hudpickup.lua" )
+include( "cl_spawnmenu.lua" )
+
 
 include( "cl_pickteam.lua" )
 include( "cl_voice.lua" )
@@ -82,7 +85,13 @@ function GM:HUDPaint()
 
 	hook.Run( "HUDDrawTargetID" )
 	hook.Run( "HUDDrawPickupHistory" )
-	hook.Run( "DrawDeathNotice", 0.85, 0.04 )
+	hook.Run( "DrawDeathNotice",
+	--0.85
+	 1
+	 ,
+	  0.04
+	 --0
+	  )
 
 end
 
@@ -174,6 +183,7 @@ function GM:OnPlayerChat( player, strText, bTeamOnly, bPlayerIsDead )
 	table.insert( tab, ": " .. strText )
 
 	chat.AddText( unpack(tab) )
+
 
 	return true
 
