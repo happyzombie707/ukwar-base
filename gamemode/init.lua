@@ -29,18 +29,20 @@ GM.PlayerSpawnTime = {}
 -----------------------------------------------------------]]
 function GM:PlayerInitialSpawn( ply )
 	
+	ply:SetTeam(TEAM_UNASSIGNED)
+	ply:SetColor(Color(0,0,0,0))
+	ply:SetRenderMode(RENDERMODE_TRANSALPHA)
 	ply:SetModel("models/player/breen.mdl")
 
+	net.Start( "ShowMenu" )			--show menu net message
+	net.WriteUInt(1, 4)	--send current team, to be displayed on the menu
+	net.Send(ply)	
+
 	--try to keep team numbers roughly even
-	if(team.NumPlayers(1) < team.NumPlayers(2)) then
-		ply:SetTeam( 1 )
-	else
-		ply:SetTeam(2)
-	end
 	ply.LastTeamSwitch = RealTime()
 
 	--spawn message
-	print("Player: " .. ply:Nick() .. ", has spawned on the " .. team.GetName(ply:Team()) .. " team.")
+	
 	--PlayerClasses.Add(ply, 0)
 end
 
@@ -50,10 +52,6 @@ end
 -----------------------------------------------------------]]
 function GM:PlayerSpawn( ply )
 
-	--player_manager.SetPlayerClass( ply, "player_team" ) custom class, WIP
-	
-	print("Player " .. ply:Nick() .. " spawning on team " .. ply:Team())
-	
 	--set playermodel colour and spawn location based on team
 	local points = {}
 	if (ply:Team()== 1) then
@@ -65,8 +63,10 @@ function GM:PlayerSpawn( ply )
 	else
 		ply:SetPlayerColor( Vector(0.25,0.25,0.25) ) 
 	end
-
-	ply:SetPos(points[math.random(1,#points)]:GetPos())
+	if(ply:Team() != TEAM_UNASSIGNED) then 
+		ply:SetPos(points[math.random(1,#points)]:GetPos()) 
+		PrintMessage(HUD_PRINTTALK, "Player " .. ply:Nick() .. " has joined the " .. team.GetName(ply:Team()) .. " team.")
+	end
 end
 
 --[[---------------------------------------------------------
@@ -75,37 +75,14 @@ end
 -----------------------------------------------------------]]
 function GM:Initialize()
 
-	local spawn_points = {									--proof of concept for storing spawn points as a vector then creating them on	
-		["construct"] ={									--server init
-			["red"] = Vector (397, -699, -147),             --ofc the actual version will get the values from a database or something
-			["blue"] = Vector(358, -243, -147)
-		},
-		["flatgrass"] = {
-			["red"] = Vector(-781, -905, -12287),
-			["blue"] = Vector(-1394, -1677, -12799)
-		}
-
-	}
-
-	local red_spawn = ents.Create("spawn_red")				--create an entity for the spawns
-	local blue_spawn = ents.Create("spawn_blue")
-
-	if(game:GetMap() == "gm_flatgrass") then				
-		red_spawn:SetPos(spawn_points["flatgrass"]["red"])
-		blue_spawn:SetPos(spawn_points["flatgrass"]["blue"])
-	elseif(game:GetMap() == "gm_construct") then
-		red_spawn:SetPos(spawn_points["construct"]["red"])
-		blue_spawn:SetPos(spawn_points["construct"]["blue"])
+	for k, v in pairs(team.GetAllTeams()) do
+		if(k > TEAM_CONNECTING and k < TEAM_UNASSIGNED) then
+			local table_name = v.Name .. "_spawns"
+			local entity_name = "spawn_".. v.Name
+			if(!sql.TableExists(table_name)) then sql.Query( "CREATE TABLE ".. table_name .." ( MapName string, x int, y int, z int )" ) end
+			CreateSpawnEnt(k)
+		end
 	end
-
-	--[[SQL implementation pseudocode
-		x y z = SELECT x y z FROM Red.Spawns WHERE Spawns.map = game.GetMap()
-		red_spawn:SetPos(Vector(x, y, z)) 
-
-	]]
-	red_spawn:Spawn()
-	blue_spawn:Spawn()
-
 end
 
 --[[---------------------------------------------------------
@@ -270,6 +247,34 @@ end
 --CUSTOM FUNCTIONS FOR HOOKS AND NET MESSAGES AND STUFF
 
 --[[---------------------------------------------------------
+   Name: CreateSpawn()
+   Desc: Callback function, called when a player changes team with the team menu
+-----------------------------------------------------------]]
+function CreateSpawnEnt(int_team)
+	
+	local table_name = team.GetName(int_team):lower().."_spawns"
+	local entity_name = "spawn_"..team.GetName(int_team):lower()
+
+	print(table_name)
+	print(entity_name)
+
+
+	if(!sql.TableExists(table_name)) then sql.Query( "CREATE TABLE " .. table_name .. " ( MapName string, x int, y int, z int )" ) end
+	
+	local spawn_ent = ents.Create(entity_name)
+
+	local spawn_pos = sql.QueryRow("SELECT x, y, z FROM " .. table_name .. " WHERE MapName = '"..game:GetMap() .. "'")
+
+	if(spawn_pos != nil ) then
+		spawn_ent:SetPos(Vector(spawn_pos.x, spawn_pos.y, spawn_pos.z))
+		spawn_ent:Spawn()
+	else
+		print("Error creating spawn point for " .. team.GetName(int_team))
+	end
+
+end
+
+--[[---------------------------------------------------------
    Name: Anonymous function
    Desc: Callback function, called when a player changes team with the team menu
 -----------------------------------------------------------]]
@@ -295,7 +300,7 @@ function ShowTeamMenu(ply, text, public, data)
 		if(ply:CanChangeTeam()) then
 			net.Start( "ShowMenu" )			--show menu net message
 			net.WriteUInt(ply:Team(), 4)	--send current team, to be displayed on the menu
-			net.Broadcast()					
+			net.Send(ply)					
 		else
 			local TimeBetweenSwitches = GAMEMODE.SecondsBetweenTeamSwitches or 10
 			ply:ChatPrint( Format( "Please wait %i more seconds before trying to change team again", ( TimeBetweenSwitches - ( RealTime() - ply.LastTeamSwitch ) ) + 1 ) )
@@ -309,8 +314,26 @@ hook.Add("PlayerSay","ShowTeamMenu",ShowTeamMenu) --add command
    Desc: Test method, used for getting xyz map coordinates
 -----------------------------------------------------------]]
 function PrintLoc(ply, text, public, data)
-	if(string.sub(text:lower(), 1,4) == "!pos") then
-		print (ply:GetPos().x .. ", " .. ply:GetPos().y .. ", " .. ply:GetPos().z)
+	if(string.sub(text:lower(), 1,9) == "!setspawn") then
+		local team_name = string.sub(text:lower(), 11, 21):gsub("%s+", "")
+		print (team_name.."_spawns")
+		if(sql.QueryRow("SELECT * FROM " .. team_name.. "_spawns WHERE MapName = '"..game:GetMap() .. "'") == nil) then
+			sql.Query( "INSERT INTO " .. team_name.. "_spawns ( MapName, x, y, z ) VALUES ( '" .. game:GetMap() .. "', ".. ply:GetPos().x ..", ".. ply:GetPos().y ..", ".. ply:GetPos().z .." )" )
+		else
+			sql.Query("UPDATE " .. team_name.. "_spawns SET x = " .. ply:GetPos().x .. ", y = " .. ply:GetPos().y .. ", z = " .. ply:GetPos().z .. " WHERE MapName = '".. game:GetMap() .. "'")
+		end		
+		ents.FindByClass("spawn_"..team_name)[1]:Remove()
+		for k, v in pairs(team.GetAllTeams()) do
+			if(k > TEAM_CONNECTING and k < TEAM_UNASSIGNED) then
+				print(v.Name:lower())
+				if (string.sub(text:lower(), 11, 21) == v.Name:lower()) then 
+				print("lol")
+					print(k)
+					CreateSpawnEnt(k)
+				end
+			end
+		end
 	end
 end
 hook.Add("PlayerSay","PrintLoc",PrintLoc)
+--	 sql.Query( "INSERT INTO player_data ( SteamID, Money ) VALUES ( '" .. ply:SteamID() .. "', 0 )" )
