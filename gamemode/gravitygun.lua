@@ -1,4 +1,4 @@
-RUNTIME_LOG("ENTERED gravity_gun.lua")
+--RUNTIME_LOG("ENTERED gravity_gun.lua")
 
 --[[---------------------------------------------------------
    Name: gamemode:GravGunPunt()

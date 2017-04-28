@@ -1,4 +1,4 @@
-RUNTIME_LOG("ENTERED cl_pickteam.lua")
+--RUNTIME_LOG("ENTERED cl_pickteam.lua")
 --[[---------------------------------------------------------
    Name: gamemode:ShowTeam()
    Desc:

@@ -1,4 +1,4 @@
-RUNTIME_LOG("ENTERED cl_targetid.lua")
+--RUNTIME_LOG("ENTERED cl_targetid.lua")
 
 --[[---------------------------------------------------------
    Name: gamemode:HUDDrawTargetID( )

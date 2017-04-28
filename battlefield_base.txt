@@ -1,6 +1,0 @@
-"battlefield_base"
-{
-	"base"		""
-	"title"		"battlefield_base"
-	"maps"		"^bf_"
-}

@@ -1,4 +1,4 @@
-RUNTIME_LOG("ENTERED cl_spawnmenu.lua")
+--RUNTIME_LOG("ENTERED cl_spawnmenu.lua")
 
 --[[---------------------------------------------------------
 	If false is returned then the spawn menu is never created.

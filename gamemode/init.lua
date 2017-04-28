@@ -3,7 +3,7 @@
 	improve team balance, add autobalance if one team has a much greater score than the other
 ]]
 
-RUNTIME_LOG("ENTERED INIT.LUA")
+--RUNTIME_LOG("ENTERED INIT.LUA")
 
 AddCSLuaFile("shared.lua")
 include( 'shared.lua' )
@@ -30,6 +30,8 @@ GM.PlayerSpawnTime = {}
 -----------------------------------------------------------]]
 function GM:PlayerInitialSpawn( ply )
 	
+	ply:SetModel("models/player/breen.mdl")
+
 	--try to keep team numbers roughly even
 	if(team.NumPlayers(1) < team.NumPlayers(2)) then
 		ply:SetTeam( 1 )
@@ -38,7 +40,7 @@ function GM:PlayerInitialSpawn( ply )
 	end
 	--spawn message
 	print("Player: " .. ply:Nick() .. ", has spawned on the " .. team.GetName(ply:Team()) .. " team.")
-	PlayerClasses.Add(ply, 0)
+	--PlayerClasses.Add(ply, 0)
 end
 
 --[[---------------------------------------------------------

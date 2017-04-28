@@ -1,5 +1,5 @@
 -- Manages the killfeed, twiddled with to change the killfeed to be slightly more descriptive
-RUNTIME_LOG("ENTERED cl_deathnotice")
+--RUNTIME_LOG("ENTERED cl_deathnotice")
 
 local hud_deathnotice_time = CreateConVar( "hud_deathnotice_time", "6", FCVAR_REPLICATED, "Amount of time to show death notice" )
 

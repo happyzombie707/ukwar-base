@@ -1,4 +1,4 @@
-RUNTIME_LOG("ENTERED shared")
+--RUNTIME_LOG("ENTERED shared")
 --[[---------------------------------------------------------
 
   This file should contain variables and functions that are
