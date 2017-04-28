@@ -139,11 +139,11 @@ function GM:CreateTeams()
 
     TEAM_RED = 1
     team.SetUp( TEAM_RED, "Red", Color(189, 59, 59) )
-    --team.SetSpawnPoint( TEAM_RED, "spawn_red" ) 
+    --team.SetSpawnPoint( TEAM_RED, "spawn_red" )          doesn't seem to work, functionality replicated in init.lua
 
     TEAM_BLUE = 2
     team.SetUp( TEAM_BLUE, "Blue", Color(91, 122, 140) )
-    --team.SetSpawnPoint(TEAM_BLUE, "spawn_blue")
+    --team.SetSpawnPoint(TEAM_BLUE, "spawn_blue")          doesn't seem to work, functionality replicated in init.lua
 
     --TEAM_FREE = 3
     --team.SetUp( 3, "Free", Color(140, 140, 140) )

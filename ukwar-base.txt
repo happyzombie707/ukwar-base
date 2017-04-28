@@ -1,7 +1,7 @@
 "Gamemode"
 {
 	"base"		"base"
-	"title"		"UKWARXDDD"
+	"title"		"UKWAR-Dev"
 	"maps"		"^gm_"
 	"menusystem"	"1"
 	"workshopid"	""

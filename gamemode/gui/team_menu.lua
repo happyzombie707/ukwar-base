@@ -17,8 +17,13 @@ local team_nums = {
 ]]
 function ShowTeamMenu(team)
 
-    --Create frame and initialise some values
+    --Create panel elements
     local Frame = vgui.Create( "DFrame" )
+    local DComboBox_Team = vgui.Create( "DComboBox", Frame )
+    local DComboBox_Class = vgui.Create( "DComboBox", Frame )
+    local DButton = vgui.Create("DButton", Frame)
+
+    --Initialise frame
     Frame:Center()
     Frame:SetSize( 300, 150 )
     Frame:SetTitle( "Name window" )
@@ -27,26 +32,31 @@ function ShowTeamMenu(team)
     Frame:ShowCloseButton( true )
     Frame:MakePopup()
     
-    --Add combo box for teams, initialise and stuff
-    local DComboBox_Team = vgui.Create( "DComboBox", Frame )
+    --Initialise team combobox
     DComboBox_Team:SetPos(5,15)
     DComboBox_Team:SetSize( 150, 20 )
     DComboBox_Team:SetValue( teams[team] )   --set current team in the combo box to the players current team
     DComboBox_Team:AddChoice( "Red" )
     DComboBox_Team:AddChoice( "Blue" )
     --DComboBox_Team:AddChoice( "Free" )
+    DComboBox_Team.OnSelect = function()
+        if(LocalPlayer():Team() == team_nums[DComboBox_Team:GetValue()]) then
+            DButton:SetEnabled(false)
+        else
+            DButton:SetEnabled(true)
+        end
+    end
 
-    --Add combo box for classes, unfinished
-    local DComboBox_Class = vgui.Create( "DComboBox", Frame )
+    --Initialise class combobox
     DComboBox_Class:SetPos(5,40)
     DComboBox_Class:SetSize( 150, 20 )
     DComboBox_Class:SetValue("Pick a class")
     DComboBox_Class:AddChoice( "I" )
     DComboBox_Class:AddChoice( "Like" )
     DComboBox_Class:AddChoice( "Memes" )
+    
 
     --submit button
-    local DButton = vgui.Create("DButton", Frame)
     DButton:SetSize(100,20)
     DButton:SetPos(5, 65)
     DButton:SetText("Spawn")
@@ -54,6 +64,7 @@ function ShowTeamMenu(team)
         net.Start("ChangeTeam") 
         net.WriteUInt(team_nums[DComboBox_Team:GetValue()], 4)  --Send chosen team to the server
         net.SendToServer()
+        Frame:Close()
     end
 
 end
