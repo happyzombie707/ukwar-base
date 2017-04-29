@@ -24,6 +24,10 @@ GM.Email		= "garrynewman@gmail.com"
 GM.Website		= "www.garry.tv"
 GM.TeamBased	= false
 
+TEAM_RED = 1
+TEAM_BLUE = 2
+--TEAM_FREE = 3
+
 --[[---------------------------------------------------------
    Name: gamemode:KeyPress( )
    Desc: Player pressed a key (see IN enums)
@@ -137,17 +141,14 @@ function GM:CreateTeams()
 
 	--if ( !GAMEMODE.TeamBased ) then return end
 
-    TEAM_RED = 1
-    team.SetUp( TEAM_RED, "Red", Color(189, 59, 59) )
-    --team.SetSpawnPoint( TEAM_RED, "spawn_red" )          doesn't seem to work, functionality replicated in init.lua
+	team.SetUp( TEAM_RED, "Red", Color(189, 59, 59) )
+	--team.SetSpawnPoint( TEAM_RED, "spawn_red" )          doesn't seem to work, functionality replicated in init.lua
 
-    TEAM_BLUE = 2
-    team.SetUp( TEAM_BLUE, "Blue", Color(91, 122, 140) )
-    --team.SetSpawnPoint(TEAM_BLUE, "spawn_blue")          doesn't seem to work, functionality replicated in init.lua
+	team.SetUp( TEAM_BLUE, "Blue", Color(91, 122, 140) )
+	--team.SetSpawnPoint(TEAM_BLUE, "spawn_blue")          doesn't seem to work, functionality replicated in init.lua
 
-    --TEAM_FREE = 3
-    --team.SetUp( 3, "Free", Color(140, 140, 140) )
-  	--team.SetSpawnPoint(TEAM_FREE, "spawn_free")
+	--team.SetUp( 3, "Free", Color(140, 140, 140) )
+	--team.SetSpawnPoint(TEAM_FREE, "spawn_free")
 
 end
 
