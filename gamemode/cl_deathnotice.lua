@@ -15,7 +15,6 @@ CONST_NO_TEAM = -1
 local Color_Icon = Color( 255, 0, 0, 0 ) --Color( 255, 80, 0, 255 )
 local NPC_Color = Color( 250, 50, 50, 255 )
  --[[
-
  --Chopped out the kill icon, and replaced it with a text string
  -- Thus, we can ( I think ) skip loading the fonts and icons here
 
@@ -46,11 +45,11 @@ local function PlayerIDOrNameToString( var )
 		if ( var == "" ) then return "" end
 		return "#" .. var
 	end
-	
+
 	local ply = Entity( var )
-	
+
 	if ( !IsValid( ply ) ) then return "NULL!" end
-	
+
 	return ply:Name()
 
 end
@@ -58,9 +57,11 @@ end
 function DrawSimpleText(x, y, text)
 	local len = surface.GetTextSize(text);
 	draw.SimpleText( text,
-	"ChatFont", 
+
+	"ChatFont",
 	x /2 - len /2,
-	 y / 2, 
+	 y / 2,
+
 	 Color( 255, 0, 0, 0 ),
 	 TEXT_ALIGN_RIGHT )
 end
@@ -81,13 +82,13 @@ local function RecvPlayerKilledByPlayer()
 		Death.time		= CurTime()
 
 		Death.fflag = true;	
+
 		Death.text = "ENEMY KILLED 100";
 		Death.color1 = Color_Icon;
 		table.insert( Deaths, Death )
 		--DrawSimpleText(ScrW(), ScrH(), "Text")
 
 		print("We killed them")
-		
 	end
 
 	if ( !IsValid( attacker ) ) then return end
@@ -122,7 +123,7 @@ local function RecvPlayerKilled()
 	if ( !IsValid( victim ) ) then return end
 	local inflictor	= net.ReadString()
 	local attacker	= "#" .. net.ReadString()
-	
+
 	print(victim)
 	print(inflictor)
 
@@ -148,22 +149,22 @@ local function RecvPlayerKilledNPC()
 	-- For some reason the killer isn't known to us, so don't proceed.
 	--
 	if ( !IsValid( attacker ) ) then return end
-	
+
 	GAMEMODE:AddDeathNotice( attacker:Name(), attacker:Team(), inflictor, victim, -1 )
-	
+
 	local bIsLocalPlayer = ( IsValid(attacker) && attacker == LocalPlayer() )
-	
+
 	local bIsEnemy = IsEnemyEntityName( victimtype )
 	local bIsFriend = IsFriendEntityName( victimtype )
-	
+
 	if ( bIsLocalPlayer && bIsEnemy ) then
 		achievements.IncBaddies()
 	end
-	
+
 	if ( bIsLocalPlayer && bIsFriend ) then
 		achievements.IncGoodies()
 	end
-	
+
 	if ( bIsLocalPlayer && ( !bIsFriend && !bIsEnemy ) ) then
 		achievements.IncBystander()
 	end
@@ -192,16 +193,30 @@ net.Receive( "NPCKilledNPC", RecvNPCKilledNPC )
 
 CONST_STR_LINEPAD_OPEN = " ["
 CONST_STR_CONST_LINEPAD_CLOSE = "] "
-function GetTeamName(int_team)
+
+function GetTeamName(int_id)
 	--if ( int_team == -1 ) then
 	--	return "[GetTeamName: Unknown team inflictor]: Very lazy and cheeky hack to stop crash -> pls fix this"
 	-- end
-	print("Team: " .. int_team)
-	return CONST_STR_LINEPAD_OPEN 
-		.. team.GetName( 
-			Entity( int_team ) : Team()
-		) .. 
+
+	--[[
+			print("Team: " .. int_team)                      Had a go at fixing this, doesn't bring up an error
+			return CONST_STR_LINEPAD_OPEN
+			.. team.GetName(
+			Entity( int_team ) : Team()                      I think the problem is Entity(team), Entity() gets the ent with that id
+			) .. CONST_STR_CONST_LINEPAD_CLOSE               so for an unassigned team it was trying to get entity 1001, which didn't exist
+		]]
+
+	if(int_id > 0 and int_id < 1001 and team.Valid(int_id)) then	--check if team isn't subscriber and also exists
+	return CONST_STR_LINEPAD_OPEN
+		.. team.GetName(int_id) ..																	--returns [teamname]
+
 		CONST_STR_CONST_LINEPAD_CLOSE
+	else
+		return CONST_STR_LINEPAD_OPEN
+			.. "¯\\_(ツ)_/¯" ..																				--returns [placeholder]
+			CONST_STR_CONST_LINEPAD_CLOSE
+	end
 end
 
 function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
@@ -227,7 +242,8 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 	Death.color3 =  Color( 250, 255, 50, 255 )
 
 	-- If the attacker is nll, then it's suicide Jim'
-	if ( Attacker != nil 
+	if ( Attacker != nil
+
 		--Check if the string has been sent with the # tag @ 0, if so, we'll ignore it'
 		and string.sub(Attacker, 1,1) != '#') then
 
@@ -244,15 +260,15 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 			Death.left	= (FLAG_DISPLAY_NOTEAM_HINT) and "[No Team] " .. Attacker or Attacker
 			Death.color1 = Color(222, 147, 95, 255)--table.Copy( NPC_Color )
 		end
-		
 	end
-
-	if ( team2 == -1 ) then 
+	if ( team2 == -1 ) then
 		Death.right	= Victim
 		Death.color2 = table.Copy( NPC_Color )
 	else
+		print(team2)
 		Death.right	= GetTeamName(team2) .. Victim
-		Death.color2 = table.Copy( team.GetColor( team2 ) ) 
+		Death.color2 = table.Copy( team.GetColor( team2 ) )
+
 	end
 
 	--Death.right = (( team2 < 0 ) and "" or GetTeamName(team2)) .. Victim
@@ -267,7 +283,9 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 
 		-- Add row to hold the inflictor
 		Death.att_inflictor = CONST_STR_LINEPAD_OPEN ..  inf_ent.PrintName .. CONST_STR_CONST_LINEPAD_CLOSE
-	else 
+
+	else
+
 		-- Could't find the ent in the table, just dump the name :('
 		print("[AddDeathNotice: Inflictor is null weapon] Inflictor name: ", Inflictor)
 
@@ -283,8 +301,6 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 	end
 
 
-	
-
 	-- Removed the icon calls, so no need to add it to the table
 	-- Death.icon		= Inflictor
 
@@ -295,12 +311,12 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 	
 	--if ( team2 == -1 ) then Death.color2 = table.Copy( NPC_Color )
 	--else Death.color2 = table.Copy( team.GetColor( team2 ) ) end
-	
+
 	--if (Death.left == Death.right) then
 	--	Death.left = nil
 		--Death.icon = "suicide"
 	--end
-	
+
 	table.insert( Deaths, Death )
 
 end
@@ -310,30 +326,29 @@ local function DrawDeath( x, y, death, hud_deathnotice_time )
 
 	--local w, h = killicon.GetSize( death.icon )
 	--if ( !w || !h ) then return end
-	
+
 	local fadeout = ( death.time + hud_deathnotice_time ) - CurTime()
-	
+
 	local alpha = math.Clamp( fadeout * 255, 0, 255 )
-	
+
 	--death.color2.a = alpha
 	--death.color1.a = alpha
 
-	local first 
+	local first
 	local second
 	local padding = 20
-	
-
 
 	if(death.fflag != nil) then
 		--local p = 0.5 + math.sin(SysTime()) * 0.8;
 		--print("Drawing middle text: @" .. "(" .. x .. ") (" .. y .. ")")
 		local len = surface.GetTextSize(death.text);
-		draw.SimpleTextOutlined( 
-			death.text, "Trebuchet24",--"HL2MPTypeDeath",--"DermaLarge", 
+
+		draw.SimpleTextOutlined(
+			death.text, "Trebuchet24",--"HL2MPTypeDeath",--"DermaLarge",
 
 			x /2 + len /2,
-			ScrH() / 4 * 3, 
-			
+			ScrH() / 4 * 3,
+
 			Color( 95, 129, 157, 255), TEXT_ALIGN_RIGHT, 0,
 			0, Color( 255, 255, 255, 128 )
 			)
@@ -342,11 +357,10 @@ local function DrawDeath( x, y, death, hud_deathnotice_time )
 
 	--print("INFLICTOR: " .. death.att_inflictor)
 	--print("VICTIM: " .. death.right)
-	--if ( b_draw_icon ) then 
+
+	--if ( b_draw_icon ) then
 	-- Draw Icon
 	--killicon.Draw( x, y, death.icon, alpha )
-	
-	
 
 	first = surface.GetTextSize(death.right);
 
@@ -355,7 +369,9 @@ local function DrawDeath( x, y, death, hud_deathnotice_time )
 	first = surface.GetTextSize(death.right);
 
 	-- Pad it to the left screen_width - previous_string - padding
+
 	if ( death.att_inflictor ) then 
+
 		death.color2.a = alpha
 		draw.SimpleText( death.att_inflictor, "ChatFont",
 		 x - padding - first, y, death.color3, TEXT_ALIGN_RIGHT )
@@ -394,22 +410,22 @@ function GM:DrawDeathNotice( x, y )
 	-- Draw
 	for k, Death in pairs( Deaths ) do
 		if ( Death.time + hud_deathnotice_time > CurTime() ) then
-	
+
 			if ( Death.lerp ) then
 				x = x * 0.3 + Death.lerp.x * 0.7
 				y = y * 0.3 + Death.lerp.y * 0.7
 			end
-			
+
 			Death.lerp = Death.lerp or {}
 			Death.lerp.x = x
 			Death.lerp.y = y
-		
+
 			y = DrawDeath( x , y, Death, hud_deathnotice_time )
-		
+
 		end
-		
+
 	end
-	
+
 	-- We want to maintain the order of the table so instead of removing
 	-- expired entries one by one we will just clear the entire table
 	-- once everything is expired.
@@ -418,7 +434,7 @@ function GM:DrawDeathNotice( x, y )
 			return
 		end
 	end
-	
+
 	Deaths = {}
 
 end
