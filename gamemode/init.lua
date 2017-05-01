@@ -8,6 +8,9 @@
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("cl_init.lua")
 
+--include("/loadout.lua")
+
+
 include( "shared.lua" )
 include( "player.lua" )
 include( "npc.lua" )
@@ -30,7 +33,7 @@ TEAM_BLUE = 2
    Desc: Called on a player's initial spawn
 -----------------------------------------------------------]]
 function GM:PlayerInitialSpawn( ply )
-
+	ply.loadout = 0
 	ply:SetTeam(TEAM_UNASSIGNED)
 	--ply:SetColor(Color(0,0,0,0))
 	--ply:SetRenderMode(RENDERMODE_TRANSALPHA)
@@ -53,7 +56,9 @@ end
    Desc: Called whenever a player spawns
 -----------------------------------------------------------]]
 function GM:PlayerSpawn( ply )
-	print(ply.meme)
+
+	ply:StripWeapons()
+
 	--set playermodel colour and spawn location based on team
 	local points = {}
 	if (ply:Team() == TEAM_RED) then
@@ -69,6 +74,27 @@ function GM:PlayerSpawn( ply )
 		ply:SetPos(points[math.random(1,#points)]:GetPos())
 		PrintMessage(HUD_PRINTTALK, "Player " .. ply:Nick() .. " has joined the " .. team.GetName(ply:Team()) .. " team.")
 	end
+
+	if(loadout.GetName(ply:Loadout()) != "Default") then
+		ply:SetMaxHealth(loadout.GetMaxHealth(ply:Loadout()))
+		ply:SetHealth(loadout.GetMaxHealth(ply:Loadout()))
+		ply:SetArmor(loadout.GetStartingArmour(ply:Loadout()))
+		ply:SetWalkSpeed(loadout.GetSpeed(ply:Loadout()))
+		ply:SetRunSpeed(loadout.GetSpeed(ply:Loadout()) + 100)
+
+		for k, v in pairs(loadout.GetWeapons(ply:Loadout()))do
+			ply:Give(v)
+			ply:SelectWeapon(v)
+		end
+	end
+end
+
+--[[---------------------------------------------------------
+   Name: gamemode:Initialize()
+   Desc: Called immediately after starting the gamemode
+-----------------------------------------------------------]]
+function GM:PlayerSilentDeath(victim, inflictor, attacker)
+	victim:StripWeapons()
 end
 
 --[[---------------------------------------------------------
@@ -253,11 +279,13 @@ end
 -----------------------------------------------------------]]
 function CreateSpawnEnt(int_team)
 
-	local table_name = team.GetName(int_team):lower() .. "_spawns"
-	local entity_name = "spawn_" .. team.GetName(int_team):lower()
+	--if(team.)
 
-	print(table_name)
-	print(entity_name)
+	local table_name = team.GetName(int_team):lower() .. "_spawns"	--table name in database
+	local entity_name = "spawn_" .. team.GetName(int_team):lower()	--spawn entity name
+
+	--print(table_name)
+	--print(entity_name)
 
 
 	if (!sql.TableExists(table_name)) then sql.Query( "CREATE TABLE " .. table_name .. " ( MapName string, x int, y int, z int )" ) end
@@ -281,13 +309,13 @@ end
 -----------------------------------------------------------]]
 net.Receive( "ChangeTeam", function( len, ply )
 	 ply:SetTeam(net.ReadUInt(4))
+	 ply:SetLoadout(net.ReadUInt(4))
 	 ply.LastTeamSwitch = RealTime()
 	 ply:Spawn()
 end )
 
 function Test(ply, text, public, data)
 	if (string.sub(text:lower(), 1,5) == "!test") then
-		print(ply:CanChangeTeam())
 	end
 end
 hook.Add("PlayerSay", "Test", Test)
@@ -317,7 +345,6 @@ hook.Add("PlayerSay","ShowTeamMenu",ShowTeamMenu) --add command
 function SetSpawn(ply, text, public, data)
 	if (string.sub(text:lower(), 1,9) == "!setspawn") then
 		local team_name = string.sub(text:lower(), 11, 21):gsub("%s+", "")
-		print (team_name .. "_spawns")
 		if (sql.QueryRow("SELECT * FROM " .. team_name .. "_spawns WHERE MapName = '" .. game:GetMap() .. "'") == nil) then
 			sql.Query( "INSERT INTO " .. team_name .. "_spawns ( MapName, x, y, z ) VALUES ( '" .. game:GetMap() .. "', " .. ply:GetPos().x .. ", " .. ply:GetPos().y .. ", " .. ply:GetPos().z .. " )" )
 		else
@@ -326,10 +353,7 @@ function SetSpawn(ply, text, public, data)
 		ents.FindByClass("spawn_" .. team_name)[1]:Remove()
 		for k, v in pairs(team.GetAllTeams()) do
 			if (k > TEAM_CONNECTING and k < TEAM_UNASSIGNED) then
-				print(v.Name:lower())
 				if (string.sub(text:lower(), 11, 21) == v.Name:lower()) then
-				print("lol")
-					print(k)
 					CreateSpawnEnt(k)
 				end
 			end
