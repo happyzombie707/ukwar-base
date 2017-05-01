@@ -1,5 +1,5 @@
 --RUNTIME_LOG("ENTERED CL_INIT.lua")
-print("[Runtime_entered] cl_init.lua");
+--print("[Runtime_entered] cl_init.lua");
 
 AddCSLuaFile( "shared.lua" )
 include( "shared.lua" )
@@ -13,7 +13,7 @@ include( "cl_hudpickup.lua" )
 include( "cl_spawnmenu.lua" )
 
 
-include( "cl_pickteam.lua" )
+--include( "cl_pickteam.lua" )
 include( "cl_voice.lua" )
 
 include("gui/team_menu.lua")
@@ -196,7 +196,7 @@ end
 function GM:OnChatTab( str )
 
 	str = string.TrimRight(str)
-	
+
 	local LastWord
 	for word in string.gmatch( str, "[^ ]+" ) do
 		LastWord = word
@@ -621,7 +621,7 @@ function GM:PostDrawViewModel( ViewModel, Player, Weapon )
 			end
 
 			hook.Call( "PostDrawPlayerHands", self, hands, ViewModel, Player, Weapon )
-			
+
 		end
 
 	end
@@ -725,8 +725,10 @@ function GM:VehicleMove( ply, vehicle, mv )
 end
 
 --hooks n net mesejes and stuff
-net.Receive ("ShowMenu", function(len, ply)
-	local team = net.ReadUInt(4)
-	ShowTeamMenu(LocalPlayer():Team())
+net.Receive ("ShowMenu", function()
+	if(LocalPlayer():IsPlayer()) then
+		if(LocalPlayer():Team() == nil) then LocalPlayer():SetTeam(TEAM_UNASSIGNED) end
+		local team = net.ReadUInt(4)
+		ShowTeamMenu(LocalPlayer():Team())
+	end
 end)
-
