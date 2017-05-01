@@ -3,7 +3,7 @@
 
 AddCSLuaFile()
 
---include("cl_killstreak.lua")
+include("cl_killstreak.lua")
 
 FLAG_DISPLAY_NOTEAM_HINT = false
 
@@ -15,7 +15,6 @@ CONST_NO_TEAM = -1
 local Color_Icon = Color( 255, 0, 0, 0 ) --Color( 255, 80, 0, 255 )
 local NPC_Color = Color( 250, 50, 50, 255 )
  --[[
-
  --Chopped out the kill icon, and replaced it with a text string
  -- Thus, we can ( I think ) skip loading the fonts and icons here
 
@@ -58,9 +57,11 @@ end
 function DrawSimpleText(x, y, text)
 	local len = surface.GetTextSize(text);
 	draw.SimpleText( text,
+
 	"ChatFont",
 	x /2 - len /2,
 	 y / 2,
+
 	 Color( 255, 0, 0, 0 ),
 	 TEXT_ALIGN_RIGHT )
 end
@@ -80,14 +81,14 @@ local function RecvPlayerKilledByPlayer()
 		local Death = {}
 		Death.time		= CurTime()
 
-		Death.fflag = true;
+		Death.fflag = true;	
+
 		Death.text = "ENEMY KILLED 100";
 		Death.color1 = Color_Icon;
 		table.insert( Deaths, Death )
 		--DrawSimpleText(ScrW(), ScrH(), "Text")
 
 		print("We killed them")
-
 	end
 
 	if ( !IsValid( attacker ) ) then return end
@@ -192,6 +193,7 @@ net.Receive( "NPCKilledNPC", RecvNPCKilledNPC )
 
 CONST_STR_LINEPAD_OPEN = " ["
 CONST_STR_CONST_LINEPAD_CLOSE = "] "
+
 function GetTeamName(int_id)
 	--if ( int_team == -1 ) then
 	--	return "[GetTeamName: Unknown team inflictor]: Very lazy and cheeky hack to stop crash -> pls fix this"
@@ -208,6 +210,7 @@ function GetTeamName(int_id)
 	if(int_id > 0 and int_id < 1001 and team.Valid(int_id)) then	--check if team isn't subscriber and also exists
 	return CONST_STR_LINEPAD_OPEN
 		.. team.GetName(int_id) ..																	--returns [teamname]
+
 		CONST_STR_CONST_LINEPAD_CLOSE
 	else
 		return CONST_STR_LINEPAD_OPEN
@@ -235,11 +238,12 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 	print("Team2: ", team2)
 
 
-	-- Inflictor string colour
+	-- Inflictor string colour	
 	Death.color3 =  Color( 250, 255, 50, 255 )
 
 	-- If the attacker is nll, then it's suicide Jim'
 	if ( Attacker != nil
+
 		--Check if the string has been sent with the # tag @ 0, if so, we'll ignore it'
 		and string.sub(Attacker, 1,1) != '#') then
 
@@ -256,7 +260,6 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 			Death.left	= (FLAG_DISPLAY_NOTEAM_HINT) and "[No Team] " .. Attacker or Attacker
 			Death.color1 = Color(222, 147, 95, 255)--table.Copy( NPC_Color )
 		end
-
 	end
 	if ( team2 == -1 ) then
 		Death.right	= Victim
@@ -265,6 +268,7 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 		print(team2)
 		Death.right	= GetTeamName(team2) .. Victim
 		Death.color2 = table.Copy( team.GetColor( team2 ) )
+
 	end
 
 	--Death.right = (( team2 < 0 ) and "" or GetTeamName(team2)) .. Victim
@@ -279,7 +283,9 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 
 		-- Add row to hold the inflictor
 		Death.att_inflictor = CONST_STR_LINEPAD_OPEN ..  inf_ent.PrintName .. CONST_STR_CONST_LINEPAD_CLOSE
+
 	else
+
 		-- Could't find the ent in the table, just dump the name :('
 		print("[AddDeathNotice: Inflictor is null weapon] Inflictor name: ", Inflictor)
 
@@ -295,8 +301,6 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 	end
 
 
-
-
 	-- Removed the icon calls, so no need to add it to the table
 	-- Death.icon		= Inflictor
 
@@ -304,7 +308,7 @@ function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 	-- Not removed this bit yet, unsure if I need to
 	--if ( team1 == -1 ) then Death.color1 = table.Copy( NPC_Color )
 	--else Death.color1 = table.Copy( team.GetColor( team1 ) ) end
-
+	
 	--if ( team2 == -1 ) then Death.color2 = table.Copy( NPC_Color )
 	--else Death.color2 = table.Copy( team.GetColor( team2 ) ) end
 
@@ -334,12 +338,11 @@ local function DrawDeath( x, y, death, hud_deathnotice_time )
 	local second
 	local padding = 20
 
-
-
 	if(death.fflag != nil) then
 		--local p = 0.5 + math.sin(SysTime()) * 0.8;
 		--print("Drawing middle text: @" .. "(" .. x .. ") (" .. y .. ")")
 		local len = surface.GetTextSize(death.text);
+
 		draw.SimpleTextOutlined(
 			death.text, "Trebuchet24",--"HL2MPTypeDeath",--"DermaLarge",
 
@@ -354,11 +357,10 @@ local function DrawDeath( x, y, death, hud_deathnotice_time )
 
 	--print("INFLICTOR: " .. death.att_inflictor)
 	--print("VICTIM: " .. death.right)
+
 	--if ( b_draw_icon ) then
 	-- Draw Icon
 	--killicon.Draw( x, y, death.icon, alpha )
-
-
 
 	first = surface.GetTextSize(death.right);
 
@@ -367,7 +369,9 @@ local function DrawDeath( x, y, death, hud_deathnotice_time )
 	first = surface.GetTextSize(death.right);
 
 	-- Pad it to the left screen_width - previous_string - padding
-	if ( death.att_inflictor ) then
+
+	if ( death.att_inflictor ) then 
+
 		death.color2.a = alpha
 		draw.SimpleText( death.att_inflictor, "ChatFont",
 		 x - padding - first, y, death.color3, TEXT_ALIGN_RIGHT )
