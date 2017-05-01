@@ -12,11 +12,17 @@
 
 AddCSLuaFile("obj_player_extend.lua")
 AddCSLuaFile("gravitygun.lua")
---AddCSLuaFile("player_shd.lua")
+AddCSLuaFile("player_shd.lua")
 AddCSLuaFile("animations.lua")
 AddCSLuaFile("cl_deathnotice.lua")
 AddCSLuaFile("loadout.lua")
 AddCSLuaFile("gui/team_menu.lua")
+AddCSLuaFile("player_shd.lua")
+AddCSLuaFile("cl_scoreboard.lua")
+AddCSLuaFile("cl_targetid.lua")
+AddCSLuaFile("cl_hudpickup.lua")
+AddCSLuaFile("cl_spawnmenu.lua")
+AddCSLuaFile("cl_voice.lua")
 
 include( 'obj_player_extend.lua' )
 

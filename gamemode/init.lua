@@ -25,6 +25,7 @@ function RUNTIME_LOG(str_string)
 end
 
 GM.PlayerSpawnTime = {}
+GM.SecondsBetweenTeamSwitches = 5
 TEAM_RED = 1
 TEAM_BLUE = 2
 
@@ -57,35 +58,38 @@ end
 -----------------------------------------------------------]]
 function GM:PlayerSpawn( ply )
 
-	ply:StripWeapons()
+
+	ply:StripWeapons() --remove player's weapons
 
 	--set playermodel colour and spawn location based on team
-	local points = {}
-	if (ply:Team() == TEAM_RED) then
-		ply:SetPlayerColor( Vector( 1,0.2,0.2 ) )
-		points = ents.FindByClass("spawn_red")			--get all spawn_red entities on server
-	elseif (ply:Team() == TEAM_BLUE) then
-		ply:SetPlayerColor( Vector(0.2,0.2,1) )
-		points = ents.FindByClass("spawn_blue")
+	local points = {}															--create list to store possible spawn points in
+
+	if(team.Valid(ply:Team()) and ply:Team() > 0 and ply:Team() < 1001) then	--if a valid team and not spectator, or unassigned etc
+		local colour = team.GetColor(ply:Team())		--make a variable to store model colour
+		ply:SetPlayerColor( Vector( colour.r/255, colour.g/255, colour.b/255 ) )		--set player to team colour, converting colour value to vector
+		points = ents.FindByClass("spawn_" .. team.GetName(ply:Team()):lower())			--set spawn to 'spawn_team name'
 	else
-		ply:SetPlayerColor( Vector(0.25,0.25,0.25) )
-	end
-	if (team.Joinable(ply:Team())) then
-		ply:SetPos(points[math.random(1,#points)]:GetPos())
-		PrintMessage(HUD_PRINTTALK, "Player " .. ply:Nick() .. " has joined the " .. team.GetName(ply:Team()) .. " team.")
+		ply:SetPlayerColor( Vector(0.25,0.25,0.25) )								--if player not on a valid team
 	end
 
-	if(loadout.GetName(ply:Loadout()) != "Default") then
-		ply:SetMaxHealth(loadout.GetMaxHealth(ply:Loadout()))
-		ply:SetHealth(loadout.GetMaxHealth(ply:Loadout()))
-		ply:SetArmor(loadout.GetStartingArmour(ply:Loadout()))
-		ply:SetWalkSpeed(loadout.GetSpeed(ply:Loadout()))
-		ply:SetRunSpeed(loadout.GetSpeed(ply:Loadout()) + 100)
+	if(points[1] == nil)	then															--if spawn list is empty
+		points = ents.FindByClass("info_player_start")		--set them to the default spawn
+	end
 
-		for k, v in pairs(loadout.GetWeapons(ply:Loadout()))do
-			ply:Give(v)
-			ply:SelectWeapon(v)
+	ply:SetPos(points[math.random(1,#points)]:GetPos())					--randomly select a spawn from list
+
+
+	if(loadout.Valid(ply:Loadout())) then												--if they have a loadout that's valid
+		ply:SetMaxHealth(loadout.GetMaxHealth(ply:Loadout()))			--set max health
+		ply:SetHealth(loadout.GetMaxHealth(ply:Loadout()))				--set current health (same as max)
+		ply:SetArmor(loadout.GetStartingArmour(ply:Loadout()))		--set armor
+		ply:SetWalkSpeed(loadout.GetSpeed(ply:Loadout()))					--set speed
+		ply:SetRunSpeed(loadout.GetSpeed(ply:Loadout()) + 100)		--set run to be 100 faster than walking
+
+		for k, v in pairs(loadout.GetWeapons(ply:Loadout()))do		--get all weapons for the loadout and loop
+			ply:Give(v)																							--give player current weapon
 		end
+		ply:SelectWeapon(loadout.GetPrimary(ply:Loadout()))				--set default to primary
 	end
 end
 
@@ -297,6 +301,7 @@ function CreateSpawnEnt(int_team)
 	if (spawn_pos ~= nil ) then
 		spawn_ent:SetPos(Vector(spawn_pos.x, spawn_pos.y, spawn_pos.z))
 		spawn_ent:Spawn()
+		team.SetSpawnPoint(int_team, entity_name)
 	else
 		print("Error creating spawn point for " .. team.GetName(int_team))
 	end
@@ -311,6 +316,7 @@ net.Receive( "ChangeTeam", function( len, ply )
 	 ply:SetTeam(net.ReadUInt(4))
 	 ply:SetLoadout(net.ReadUInt(4))
 	 ply.LastTeamSwitch = RealTime()
+	 PrintMessage(HUD_PRINTTALK, "Player " .. ply:Nick() .. " has joined the " .. team.GetName(ply:Team()) .. " team.")
 	 ply:Spawn()
 end )
 
