@@ -4,11 +4,7 @@ local teams = {
    -- [3] = "Free"
 }
 
-local loadout_nums = {
-    ["Light"] = 1,
-    ["Medium"] = 2,
-    ["Heavy"] = 3
-}
+local loadout_nums = {}
 
 local button_colours = {
   ["Red"] = {
@@ -23,12 +19,9 @@ local button_colours = {
   },
 }
 
---[[
-    Name: ShowTeamMenu(int team)
-    Desc: Creates and displays team selection menu
-    Args: int team - player's current team
-]]
 function ShowTeamMenu(team)
+
+    PrintTable(loadout.GetAllLoadouts())
 
     --Create panel elements
     local Frame = vgui.Create( "DFrame" )
@@ -45,18 +38,22 @@ function ShowTeamMenu(team)
     Frame:ShowCloseButton( false )
     Frame:MakePopup()
     function Frame:Paint(w, h)
-
       draw.RoundedBox( 0, 0, 0, w, h, Color( 37, 37, 37, 210 ) )
     end
 
     --Initialise class combobox
     DComboBox_Class:SetSize( 300, 43 )
+    DComboBox_Class:Clear()
     DComboBox_Class:Center()
     DComboBox_Class:SetPos(DComboBox_Class:GetPos(), 295)
     DComboBox_Class:SetValue( "Select Class" )   --set current team in the combo box to the players current team
+
     for k, v in pairs(loadout.GetAllLoadouts()) do
-      DComboBox_Class:AddChoice(v.Name)
+        loadout_nums[v.Name] = k
+        print(v.Name)
+        DComboBox_Class:AddChoice(v.Name)
     end
+    print(#loadout_nums)
     DComboBox_Class.OnSelect = function()
 
     end
@@ -76,6 +73,7 @@ function ShowTeamMenu(team)
         net.SendToServer()
         Frame:Close()
     end
+    
     DButton_Red.OnCursorEntered = function()
       DButton_Red.CurrentColour = 2
     end
@@ -100,6 +98,7 @@ function ShowTeamMenu(team)
       net.SendToServer()
       Frame:Close()
     end
+
     DButton_Blue.OnCursorEntered = function()
       DButton_Blue.CurrentColour = 2
     end

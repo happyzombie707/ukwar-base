@@ -156,10 +156,16 @@ function GM:CreateTeams()
 
 	--if ( !GAMEMODE.TeamBased ) then return end
 
-	team.SetUp( TEAM_RED, "Red", Color(189, 59, 59) )
+	team.SetUp( TEAM_RED, "Red", Color( 249, 47, 47 ) )
 	--team.SetSpawnPoint( TEAM_RED, "spawn_red" )          doesn't seem to work, functionality replicated in init.lua
 
-	team.SetUp( TEAM_BLUE, "Blue", Color(91, 122, 140) )
+	team.SetUp( TEAM_BLUE, "Blue", Color(0, 162, 232) )
+
+
+	team.SetUp( 3, "Green", Color(0, 255, 50) )
+
+	team.SetUp( 4, "Yellow", Color(255, 255, 50) )
+	loadout.SetUp(4, "Sniper", "weapon_crowbar", "fas2_m1911", "fas2_m21", 50, 0, 250, false)
 	--team.SetSpawnPoint(TEAM_BLUE, "spawn_blue")          doesn't seem to work, functionality replicated in init.lua
 
 	--team.SetUp( 3, "Free", Color(140, 140, 140) )

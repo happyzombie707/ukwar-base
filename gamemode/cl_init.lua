@@ -4,8 +4,8 @@
 AddCSLuaFile( "shared.lua" )
 include( "shared.lua" )
 
-AddCSLuaFile("cl_deathnotice.lua")
-include( "cl_deathnotice.lua" )
+--AddCSLuaFile("cl_deathnotice.lua")
+--include( "cl_deathnotice.lua" )
 
 include( "cl_scoreboard.lua" )
 include( "cl_targetid.lua" )
@@ -18,6 +18,13 @@ include( "cl_voice.lua" )
 
 include("gui/team_menu.lua")
 
+concommand.Add( "cl_loadout", function( ply, cmd, args )
+	loadout.SetUp(#loadout.GetAllLoadouts()+1, "TEST", "weapon_crowbar", "fas2_m1911", "fas2_mac11", 100, 50, 500, false)
+end )
+
+concommand.Add( "cl_ploadout", function( ply, cmd, args )
+	PrintTable(loadout.GetAllLoadouts())
+end )
 
 --[[---------------------------------------------------------
 	Name: gamemode:Initialize()
@@ -26,6 +33,14 @@ include("gui/team_menu.lua")
 function GM:Initialize()
 
 	GAMEMODE.ShowScoreboard = false
+	surface.CreateFont( "Myfont",
+     {
+                    font    = "OCR A Std Regular", -- Not file name, font name
+                    size    = 24,
+                    weight  = 400,
+                    antialias = true,
+                    shadow = true
+            })
 
 end
 
@@ -52,6 +67,17 @@ function GM:PlayerBindPress( pl, bind, down )
 	return false
 
 end
+
+
+hook.Add( "HUDShouldDraw", "HideHUD", function( name )
+	for k, v in pairs({"CHudHealth", "CHudBattery", "CHudAmmo", "CHudSecondaryAmmo", })do
+		if name == v then return false end
+	end
+end )
+
+hook.Run("HUDShouldDraw", "CHudHealth")
+hook.Run("HUDShouldDraw", "CHudBattery")
+hook.Run("HUDShouldDraw", "CHudAmmo")
 
 --[[---------------------------------------------------------
 	Name: gamemode:HUDShouldDraw( name )
@@ -82,7 +108,7 @@ end
 	Desc: Use this section to paint your HUD
 -----------------------------------------------------------]]
 function GM:HUDPaint()
-
+	--[[
 	hook.Run( "HUDDrawTargetID" )
 	hook.Run( "HUDDrawPickupHistory" )
 	hook.Run( "DrawDeathNotice",
@@ -92,6 +118,29 @@ function GM:HUDPaint()
 	  0.04
 	 --0
 	  )
+]]
+
+self.BaseClass:HUDPaint()
+local ply = LocalPlayer()
+--local wep = LocalPlayer():GetActiveWeapon():Clip1()
+local HP  = LocalPlayer():Health()
+local ARM = LocalPlayer():Armor()
+
+
+surface.SetTextColor( 255, 255, 255, 255)
+surface.SetTextPos( 20, 735 )
+surface.SetFont( "Myfont" )
+surface.DrawText( "Health: "..HP) // Health
+
+surface.SetTextColor( 255, 255, 255, 255)
+surface.SetTextPos( 420, 735 )
+surface.SetFont( "Myfont" )
+--surface.DrawText( "Magazine: "..wep) // Ammo clip
+
+surface.SetTextColor( 255, 255, 255, 255)
+surface.SetTextPos( 240, 735 )
+surface.SetFont( "Myfont" )
+surface.DrawText( "Armor: "..ARM) //Armor
 
 end
 
