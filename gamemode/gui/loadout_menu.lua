@@ -1,25 +1,4 @@
-local teams = {
-    [1] = "Red",
-    [2] = "Blue",
-   -- [3] = "Free"
-}
-
-local loadout_nums = {}
-
-local button_colours = {
-  ["Red"] = {
-    [1] = Color( 249, 47, 47 ),
-    [2] = Color( 239, 100, 100 ),
-    [3] = Color( 124, 80, 80 ),
-  },
-  ["Blue"] = {
-    [1] = Color(0, 162, 232),
-    [2] = Color( 70, 205, 244 ),
-    [3] = Color( 87, 120, 138 ),
-  },
-}
-
-function ShowTeamMenu(team)
+function ShowLoadoutMenu(team)
 
     PrintTable(loadout.GetAllLoadouts())
 

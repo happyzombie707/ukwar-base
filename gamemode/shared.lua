@@ -165,7 +165,13 @@ function GM:CreateTeams()
 	team.SetUp( 3, "Green", Color(0, 255, 50) )
 
 	team.SetUp( 4, "Yellow", Color(255, 255, 50) )
+
+	loadout.SetUp(1, "Light", "weapon_crowbar", "fas2_glock20", "fas2_m3s90", 75, 0, 300, false)
+	loadout.SetUp(2, "Medium", 	"weapon_crowbar", "fas2_m1911", "fas2_g3", 100, 25, 200, false)
+	loadout.SetUp(3, "Heavy", "weapon_machete", "fas2_ragingbull", "fas2_rpk", 125, 50, 150, false)
 	loadout.SetUp(4, "Sniper", "weapon_crowbar", "fas2_m1911", "fas2_m21", 50, 0, 250, false)
+	loadout.SetUp(5, "CQB", "fas2_dv2", "fas2_glock20", "fas2_mac11", 50, 50, 300, false)
+
 	--team.SetSpawnPoint(TEAM_BLUE, "spawn_blue")          doesn't seem to work, functionality replicated in init.lua
 
 	--team.SetUp( 3, "Free", Color(140, 140, 140) )

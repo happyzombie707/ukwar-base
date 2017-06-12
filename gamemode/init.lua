@@ -19,6 +19,7 @@ include( "variable_edit.lua" )
 --net messages
 util.AddNetworkString( "ShowMenu" )
 util.AddNetworkString( "ChangeTeam" )
+util.AddNetworkString( "PlayerLoadout" )
 
 function RUNTIME_LOG(str_string)
 	print(">>> " .. str_string)
@@ -330,6 +331,12 @@ net.Receive( "ChangeTeam", function( len, ply )
 	 PrintMessage(HUD_PRINTTALK, "Player " .. ply:Nick() .. " has joined the " .. team.GetName(ply:Team()) .. " team.")
 	 ply:Spawn()
 end )
+
+net.Receive ("PlayerLoadout", function( len, ply )
+
+	--loadout.AddPlayerLoadout
+
+end)
 
 
 
