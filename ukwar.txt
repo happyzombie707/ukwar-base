@@ -1,0 +1,9 @@
+"ukwar"
+{
+	"base"		"base"
+	"title"		"ukwar"
+	"maps"		"^gm_"
+	"menusystem"	"1"
+	"workshopid"	""
+
+}

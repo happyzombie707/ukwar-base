@@ -6,7 +6,7 @@
 AddCSLuaFile()
 DEFINE_BASECLASS( "base_entity" )
 
-ENT.PrintName = "Spawn Point"
+ENT.PrintName = "Team Spawn Point"
 ENT.Spawnable = true
 ENT.Type = "anim"
 ENT.TeamId = 0
@@ -17,7 +17,7 @@ function ENT:Initialize()
 
 	self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetRenderMode( RENDERMODE_NORMAL )
-    self:SetModel( "models/props_borealis/bluebarrel001.mdl" )
+  self:SetModel( "models/props_borealis/bluebarrel001.mdl" )
     --self:SetColor( Color( 250, 50, 50 ))
 
 end
@@ -28,7 +28,11 @@ end
 
 function ENT:SetTeam( id )
 	self.TeamId = tonumber(id)
-	self:SetColor( team.GetColor(self.TeamId) )
+	if self:Team() > -1 then
+        self:SetColor( team.GetColor(self.TeamId) )
+    else
+        self:SetColor(Color(255, 255, 255))
+    end
 end
 
 function ENT:Draw()

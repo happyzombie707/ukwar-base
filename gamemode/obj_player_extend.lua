@@ -1,13 +1,14 @@
 print("ENTERED obj_player_extend.lua")
 
 local meta = FindMetaTable( "Player" )
-if ( !meta ) then return end
+if ( not meta ) then return end
+
 
 -- In this file we're adding functions to the player meta table.
 -- This means you'll be able to call functions here straight from the player object
 -- You can even override already existing functions.
 
---meta.loadout = 0
+meta.loadout = {}
 
 --[[---------------------------------------------------------
    Name: AddFrozenPhysicsObject
@@ -218,25 +219,5 @@ function meta:CanChangeTeam()
 
 	local TimeBetweenSwitches = GAMEMODE.SecondsBetweenTeamSwitches or 10
 	return (self.LastTeamSwitch && RealTime() - self.LastTeamSwitch > TimeBetweenSwitches)
-
-end
-
---[[---------------------------------------------------------
-	CanChangeTeam
-	get whether a player can swap team, returns true/false
------------------------------------------------------------]]
-function meta:Loadout()
-
-	return self.loadout
-
-end
-
---[[---------------------------------------------------------
-	CanChangeTeam
-	get whether a player can swap team, returns true/false
------------------------------------------------------------]]
-function meta:SetLoadout(int_id)
-
-	self.loadout = int_id
 
 end

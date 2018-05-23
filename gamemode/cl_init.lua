@@ -1,25 +1,41 @@
 --RUNTIME_LOG("ENTERED CL_INIT.lua")
 --print("[Runtime_entered] cl_init.lua");
 
-AddCSLuaFile( "shared.lua" )
+--AddCSLuaFile( "shared.lua" )
 include( "shared.lua" )
 
 --AddCSLuaFile("cl_deathnotice.lua")
 --include( "cl_deathnotice.lua" )
+include( "cl_hud.lua" )
+include( "cl_sound.lua" )
+--include( "dof.lua" )
 
 include( "cl_scoreboard.lua" )
 include( "cl_targetid.lua" )
 include( "cl_hudpickup.lua" )
 include( "cl_spawnmenu.lua" )
-
+include( "player/player_ext.lua" )
 
 --include( "cl_pickteam.lua" )
 include( "cl_voice.lua" )
 
 include("gui/team_menu.lua")
+include("gui/loadout_admin.lua")
+include("gui/squad_request.lua")
 
-concommand.Add( "cl_loadout", function( ply, cmd, args )
-	loadout.SetUp(#loadout.GetAllLoadouts()+1, "TEST", "weapon_crowbar", "fas2_m1911", "fas2_mac11", 100, 50, 500, false)
+concommand.Add( "cl_loadout1", function( ply, cmd, args )
+end )
+
+concommand.Add( "cl_loadout2", function( ply, cmd, args )
+	loadout.SetUp(#loadout.GetAllLoadouts()+1, "TEST 2", "weapon_crowbar", "fas2_glock20", "fas2_mac11", 100, 50, 400, false)
+end )
+
+concommand.Add( "cl_loadout3", function( ply, cmd, args )
+	loadout.SetUp(#loadout.GetAllLoadouts()+1, "TEST 3", "weapon_crowbar", "fas2_raginbull", "fas2_mp5k", 75, 25, 500, false)
+end )
+
+concommand.Add("cl_current", function( ply, cmd, args )
+	--print ply:Get
 end )
 
 concommand.Add( "cl_ploadout", function( ply, cmd, args )
@@ -773,11 +789,28 @@ end
 function GM:VehicleMove( ply, vehicle, mv )
 end
 
---hooks n net mesejes and stuff
-net.Receive ("ShowMenu", function()
+--[[hooks n net mesejes and stuff
+net.Receive ("ShowTeamMenu", function()
 	if(LocalPlayer():IsPlayer()) then
 		if(LocalPlayer():Team() == nil) then LocalPlayer():SetTeam(TEAM_UNASSIGNED) end
-		local team = net.ReadUInt(4)
+		local team_id = net.ReadUInt(4)
+        local team_alias = net.ReadString()
+        print (team_alias)
+		ShowTeamMenu(LocalPlayer():Team(), team_alias)
+	end
+end)]]
+
+net.Receive ("ShowLoadoutMenu", function()
+	if(LocalPlayer():IsPlayer()) then
+		if(LocalPlayer():Team() == nil) then LocalPlayer():SetTeam(TEAM_UNASSIGNED) end
+		local team_id = net.ReadUInt(4)
 		ShowTeamMenu(LocalPlayer():Team())
 	end
 end)
+--[[
+net.Receive ("ShowLoadoutAdmin", function()
+    print "lel"
+	if(LocalPlayer():IsPlayer()) then
+		ShowLoadoutAdmin()
+	end
+end)]]

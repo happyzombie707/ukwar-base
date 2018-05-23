@@ -10,12 +10,14 @@
 
 -----------------------------------------------------------]]
 
+AddCSLuaFile("loadout.lua")
+include( "loadout.lua" )
+
 AddCSLuaFile("obj_player_extend.lua")
 AddCSLuaFile("gravitygun.lua")
 AddCSLuaFile("player_shd.lua")
 AddCSLuaFile("animations.lua")
 AddCSLuaFile("cl_deathnotice.lua")
-AddCSLuaFile("loadout.lua")
 AddCSLuaFile("gui/team_menu.lua")
 AddCSLuaFile("player_shd.lua")
 AddCSLuaFile("cl_scoreboard.lua")
@@ -26,12 +28,11 @@ AddCSLuaFile("cl_voice.lua")
 
 include( 'obj_player_extend.lua' )
 
-include( "loadout.lua" )
 include( 'gravitygun.lua' )
 include( 'player_shd.lua' )
 include( 'animations.lua' )
 
-include( 'player_class/player_default.lua' )
+include( 'player/player_ext.lua' )
 
 GM.Name			= "Base Gamemode"
 GM.Author		= "Garry Newman"
@@ -156,21 +157,13 @@ function GM:CreateTeams()
 
 	--if ( !GAMEMODE.TeamBased ) then return end
 
-	team.SetUp( TEAM_RED, "Red", Color( 249, 47, 47 ) )
-	--team.SetSpawnPoint( TEAM_RED, "spawn_red" )          doesn't seem to work, functionality replicated in init.lua
+    for i=1, game.MaxPlayers() do
+        team.SetUp( i, "Squad_"..i , ColorRand() )
+        GAMEMODE.TeamAlias = "Squad " .. i
+    end
 
-	team.SetUp( TEAM_BLUE, "Blue", Color(0, 162, 232) )
 
-
-	team.SetUp( 3, "Green", Color(0, 255, 50) )
-
-	team.SetUp( 4, "Yellow", Color(255, 255, 50) )
-
-	loadout.SetUp(1, "Light", "weapon_crowbar", "fas2_glock20", "fas2_m3s90", 75, 0, 300, false)
-	loadout.SetUp(2, "Medium", 	"weapon_crowbar", "fas2_m1911", "fas2_g3", 100, 25, 200, false)
-	loadout.SetUp(3, "Heavy", "weapon_machete", "fas2_ragingbull", "fas2_rpk", 125, 50, 150, false)
-	loadout.SetUp(4, "Sniper", "weapon_crowbar", "fas2_m1911", "fas2_m21", 50, 0, 250, false)
-	loadout.SetUp(5, "CQB", "fas2_dv2", "fas2_glock20", "fas2_mac11", 50, 50, 300, false)
+	--loadout.AddDefaultLoadout(1, "lele", "meme,", "meme,", meme", )
 
 	--team.SetSpawnPoint(TEAM_BLUE, "spawn_blue")          doesn't seem to work, functionality replicated in init.lua
 

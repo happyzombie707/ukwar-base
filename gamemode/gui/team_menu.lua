@@ -1,111 +1,156 @@
-local teams = {
-    [1] = "Red",
-    [2] = "Blue",
-   -- [3] = "Free"
-}
 
-local loadout_nums = {}
+--begin net message
+net.Receive("ShowTeamMenu", function()
 
-local button_colours = {
-  ["Red"] = {
-    [1] = Color( 249, 47, 47 ),
-    [2] = Color( 239, 100, 100 ),
-    [3] = Color( 124, 80, 80 ),
-  },
-  ["Blue"] = {
-    [1] = Color(0, 162, 232),
-    [2] = Color( 70, 205, 244 ),
-    [3] = Color( 87, 120, 138 ),
-  },
-}
+    --get player
+    local ply = LocalPlayer()
 
-function ShowTeamMenu(team)
+    --if not player return
+    if (not ply:IsPlayer()) then return end
 
-    PrintTable(loadout.GetAllLoadouts())
+    --read net data
+    local lod = net.ReadTable()
+    PrintTable(lod)
+    local squad_id = net.ReadUInt(6)
+    local squad_alias = net.ReadString()
+    local current_loadout = net.ReadInt(4)
+    local has_spawn = net.ReadBool()
+    local model = ply:GetModel()
+    local colour = team.GetColor(ply:Team())
 
-    --Create panel elements
-    local Frame = vgui.Create( "DFrame" )
-    local DComboBox_Class = vgui.Create( "DComboBox", Frame )
-    local DButton_Red = vgui.Create("DButton", Frame)
-    local DButton_Blue = vgui.Create("DButton", Frame)
-
-    --Initialise frame
-    Frame:SetSize( 500, 400 )
+    --setup frame
+    local Frame = vgui.Create("DFrame")
+    Frame:SetSize( 650, 400 )
     Frame:Center()
-    Frame:SetTitle( "Change Team" )
+    Frame:SetTitle( "Change Squad" )
     Frame:SetVisible( true )
     Frame:SetDraggable( false )
-    Frame:ShowCloseButton( false )
+    Frame:ShowCloseButton( true )
     Frame:MakePopup()
-    function Frame:Paint(w, h)
-      draw.RoundedBox( 0, 0, 0, w, h, Color( 37, 37, 37, 210 ) )
+    Frame.OnClose = function()
+        UpdatePlayer(false, false, false)
     end
 
-    --Initialise class combobox
-    DComboBox_Class:SetSize( 300, 43 )
-    DComboBox_Class:Clear()
-    DComboBox_Class:Center()
-    DComboBox_Class:SetPos(DComboBox_Class:GetPos(), 295)
-    DComboBox_Class:SetValue( "Select Class" )   --set current team in the combo box to the players current team
+    --create all form items
+    local DCheckBox_SSpawn = vgui.Create("DCheckBoxLabel", Frame)
+    local DComboBox_Model = vgui.Create("DComboBox", Frame)
+    local DComboBox_Loadout = vgui.Create("DComboBox", Frame)
+    local DListView_Members = vgui.Create("DListView", Frame)
+    local DButton_Leave = vgui.Create("DButton", Frame)
+    local DButton_Respawn = vgui.Create("DButton", Frame)
+    local DTextEntry_SquadName = vgui.Create("DTextEntry", Frame)
+    local DComboBox_Players = vgui.Create("DComboBox", Frame)
+    local DButton_Invite = vgui.Create("DButton", Frame)
+    local DColorCombo_SquadColour = vgui.Create("DColorCombo", Frame)
+    local DButton_SaveSquad = vgui.Create( "DButton", Frame )
 
-    for k, v in pairs(loadout.GetAllLoadouts()) do
-        loadout_nums[v.Name] = k
-        print(v.Name)
-        DComboBox_Class:AddChoice(v.Name)
+
+    --function called to send player info to server
+    function UpdatePlayer(leave, respawn, silent)
+        net.Start("UpdatePlayer")
+        net.WriteBool(leave)    --leaving squad?
+        net.WriteBool(respawn)  --respawning?
+        net.WriteBool(silent)   --should respawn be silent?
+        net.WriteBool(DCheckBox_SSpawn:GetChecked())    --squad spawn
+        net.WriteString(DComboBox_Model:GetSelected() or model)  --model
+        _, id = DComboBox_Loadout:GetSelected() --get loadout id
+        net.WriteInt(id, 4)
+        net.SendToServer()  --send
     end
-    print(#loadout_nums)
-    DComboBox_Class.OnSelect = function()
 
+    --set up spawn checkbox
+    DCheckBox_SSpawn:SetPos(50, 350)
+    DCheckBox_SSpawn:SetValue(ply:GetNWBool("squad_spawn"))
+    DCheckBox_SSpawn:SetText("Spawn at squad spawn?")
+    DCheckBox_SSpawn:SizeToContents()
+    DCheckBox_SSpawn:SetEnabled(has_spawn)
+
+    --set up model combobox
+    DComboBox_Model:SetSize(175, 20)
+    DComboBox_Model:SetPos(275, 50)
+    DComboBox_Model:SetValue(model)
+    for k, v in pairs(player_manager.AllValidModels()) do
+        DComboBox_Model:AddChoice(v, nil, ply:GetModel() == v)
     end
 
+    --setup loadout combobox
+    DComboBox_Loadout:SetSize(175, 20)
+    DComboBox_Loadout:SetPos(275, 90)
+    DComboBox_Loadout:SetValue("Loadout")
+    for k, v in pairs(lod) do
+        print(current_loadout)
+        DComboBox_Loadout:AddChoice(v.name, v.id, v.id == current_loadout)
+    end
 
-    --Initialise red team button
-    DButton_Red.CurrentColour = 1
-    DButton_Red:SetSize(200,200)
-    DButton_Red:SetPos(33, 33)
-    DButton_Red:SetText("Red")
-    DButton_Red:SetTextColor(Color(255,255,255))
-    DButton_Red:SetFont("Trebuchet24")
-    DButton_Red.DoClick = function()
-        net.Start("ChangeTeam")
-        net.WriteUInt(1, 4)  --Send chosen team to the server
-        net.WriteUInt(loadout_nums[DComboBox_Class:GetText()], 4)
+    --set up squad list view
+    DListView_Members:SetSize(175, 100)
+    DListView_Members:SetPos(275, 130)
+    DListView_Members:AddColumn("Squad")
+    for _, v in pairs(team.GetPlayers(ply:Team())) do
+        DListView_Members:AddLine(v:GetName())
+    end
+
+    --set up leave squad button
+    DButton_Leave:SetSize(75, 20)
+    DButton_Leave:SetPos(275, 250)
+    DButton_Leave:SetText("Leave")
+    DButton_Leave.DoClick = function()
+        UpdatePlayer(true, true, true)
+    end
+
+    --set up respawn button
+    DButton_Respawn:SetSize(75, 20)
+    DButton_Respawn:SetPos(375, 250)
+    DButton_Respawn:SetText("Respawn")
+    DButton_Respawn.DoClick = function()
+        Frame:SetVisible(false)
+        UpdatePlayer(false, true, false)
+    end
+
+    --set up squad name textbox
+    DTextEntry_SquadName:SetSize(100, 20)
+    DTextEntry_SquadName:SetPos(500, 50)
+    DTextEntry_SquadName:SetText(squad_alias)
+
+    --set up player combobox
+    DComboBox_Players:SetSize(100, 20)
+    DComboBox_Players:SetPos(500, 90)
+    DComboBox_Players:SetValue("Invite...")
+    for _, v in pairs(player.GetAll()) do
+        DComboBox_Players:AddChoice(v:GetName(), v:SteamID())
+    end
+
+    --setup invite button
+    DButton_Invite:SetSize(50, 20)
+    DButton_Invite:SetPos(525, 130)
+    DButton_Invite:SetText("Invite")
+    DButton_Invite.DoClick = function()
+        local name, ssquad_id = DComboBox_Players:GetSelected()
+
+        net.Start("InvitePlayer")
+        net.WriteString(ssquad_id)
         net.SendToServer()
-        Frame:Close()
     end
 
-    DButton_Red.OnCursorEntered = function()
-      DButton_Red.CurrentColour = 2
-    end
-    DButton_Red.OnCursorExited = function()
-      DButton_Red.CurrentColour = 1
-    end
-    DButton_Red.Paint = function(self, w, h)
-      draw.RoundedBox( 5, 0, 0, w, h, button_colours["Red"][DButton_Red.CurrentColour])
+    --setup squad colour Combo
+    DColorCombo_SquadColour:SetSize(100, 100)
+    DColorCombo_SquadColour:SetPos(500, 160)
+    DColorCombo_SquadColour:SetColor(team.GetColor(ply:Team()))
+
+
+    --setup squad save button
+    DButton_SaveSquad:SetSize(50, 20)
+    DButton_SaveSquad:SetPos(525, 230)
+    DButton_SaveSquad:SetText("Save")
+    DButton_SaveSquad.DoClick = function()
+        net.Start("UpdateSquad")
+        local col = Color(DColorCombo_SquadColour:GetColor().r, DColorCombo_SquadColour:GetColor().g, DColorCombo_SquadColour:GetColor().b )
+        net.WriteColor(col)
+        net.WriteString(DTextEntry_SquadName:GetText())
+        net.SendToServer()
+
     end
 
-    --Initialise red team button
-    DButton_Blue.CurrentColour = 1
-    DButton_Blue:SetSize(200,200)
-    DButton_Blue:SetPos(266, 33)
-    DButton_Blue:SetText("Blue")
-    DButton_Blue:SetTextColor(Color(255,255,255))
-    DButton_Blue:SetFont("Trebuchet24")
-    DButton_Blue.DoClick = function()
-      net.Start("ChangeTeam")
-      net.WriteUInt(2, 4)  --Send chosen team to the server
-      net.WriteUInt(loadout_nums[DComboBox_Class:GetText()], 4)
-      net.SendToServer()
-      Frame:Close()
-    end
 
-    DButton_Blue.OnCursorEntered = function()
-      DButton_Blue.CurrentColour = 2
-    end
-    DButton_Blue.OnCursorExited = function()
-      DButton_Blue.CurrentColour = 1
-    end
-    DButton_Blue.Paint = function(self, w, h)
-      draw.RoundedBox( 5, 0, 0, w, h, button_colours["Blue"][DButton_Blue.CurrentColour])
-    end
-end
+
+end)
