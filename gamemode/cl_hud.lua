@@ -1,5 +1,8 @@
-﻿include("cl_terminal.lua")
-include("cl_graphics.lua")
+﻿AddCSLuaFile()
+
+include("game.lua")
+--include("cl_terminal.lua")
+--include("cl_graphics.lua")
 
 __INT_TIME_PREV = 0
 __INT_DELTA_TIME = 0
@@ -261,7 +264,7 @@ end);
 --end
 
 surface.CreateFont( "HBF_HX", {
-	font = "Trebuchet", -- Use the font-name which is shown to you by your operating system Font Viewer, not the file name
+	font = "Trebuchet MS", -- Use the font-name which is shown to you by your operating system Font Viewer, not the file name
 	extended = false,
 	size = 48 * 2,
 	weight = 600,
@@ -279,7 +282,7 @@ surface.CreateFont( "HBF_HX", {
 } )
 
 surface.CreateFont( "HBF_HL", {
-	font = "Trebuchet", -- Use the font-name which is shown to you by your operating system Font Viewer, not the file name
+	font = "Trebuchet MS", -- Use the font-name which is shown to you by your operating system Font Viewer, not the file name
 	extended = false,
 	size = 48,
 	weight = 600,
@@ -297,7 +300,7 @@ surface.CreateFont( "HBF_HL", {
 } )
 
 surface.CreateFont( "HBF_HM", {
-	font = "Trebuchet", -- Use the font-name which is shown to you by your operating system Font Viewer, not the file name
+	font = "Trebuchet MS", -- Use the font-name which is shown to you by your operating system Font Viewer, not the file name
 	extended = false,
 	size = 48,
 	weight = 600,
@@ -440,6 +443,10 @@ function UI_Draw_NDA_USER()
 			ScrW() - 200,
 			ScrH() - 200, 
 			Color(255,255,255,210))
+end
+
+function Get_Squad()
+	
 end
 
 function UI_Draw_Hud_SquadBar()
@@ -838,7 +845,7 @@ end
 function UI_GameBanner()
 	
 	local text = "YOUR TEAM WON"
-	surface.SetFont( "Hud_BannerFont" )
+	surface.SetFont( "HBF_HM" )
 	local width, height = surface.GetTextSize( text )
 
 	-- TODO: Add beziere transformations if it's performance friendly'
@@ -846,7 +853,7 @@ function UI_GameBanner()
 	--CalculateBezierPoint(2 * )
 	
 	draw.SimpleText(text, 
-		"Hud_BannerFont", 
+		"HBF_HM", 
 		ScrW() /2 - width/2,
 		ScrH() /3, 
 		Color(255,255,255,210))
@@ -868,11 +875,11 @@ end
 
 function UI_DrawGameHeader_Timer()
 	local timecnt;
-	local f = COSFADE(
+	--local f = COSFADE(
 	--SliceMilli(
-		CurTime()
+	--	CurTime()
 	--)
-	)
+	
 
 	
 	local ColorVec--Color(255, 255, 255, 255)
@@ -995,7 +1002,7 @@ function HUD_Draw()
 	--end
 	--PrintTable(SCREENSPACE_COLOR_STATE)
 	--print( GAME.ui.screenspace.GREYSCALE_MOD )
-
+	bDrawAdminOverlay = true
 	local pVec = LocalPlayer():GetPos()
 	--CanISee = {} --clear the table so there are no disconnected players involved
 	for k, v in pairs( ents.GetAll() ) do
@@ -1083,21 +1090,21 @@ function HUD_Draw()
 	--UI_DrawGameSpec()
 	UI_Draw_NDA_USER()
 	--PrintTable(GAME)
-	if( GAME.ui.bDrawWarningState) then
+	--if( GAME.ui.bDrawWarningState) then
 		--UI_Warning_ChangeState(1, 0)
-	end
-	
-	if(GAME.ui.bDrawTerminalClear) then
-		UI_Draw_Terminal()
-		return
-	end
+	--end
+		
+	--if(GAME.ui.bDrawTerminalClear) then
+	--	UI_Draw_Terminal()
+	--	return
+--	end
 
-	if ( GAME.ui.bDraw_GameNotice ) then
+--	if ( GAME.ui.bDraw_GameNotice ) then
 		UI_GameBanner()
-	end
-	if ( GAME.ui.bDrawRightHud ) then
+--	end
+--	if ( GAME.ui.bDrawRightHud ) then
 		--UI_Hud_Right()
-	end
+	--end
 
 	--UI_Draw3D_Hud_SquadBar()
 	--RenderCustom()
@@ -1106,7 +1113,7 @@ function HUD_Draw()
 	
 	UI_DrawTeamHigherachy()
 	UI_Draw_Hud_SquadBar()
-	UI_DrawGameHeader_Timer()
+	--UI_DrawGameHeader_Timer()
 
 	if(GAME.int_gamestate == 0 ) then -- Wait
 	elseif(GAME.int_gamestate == 1) then -- Pregame
@@ -1119,9 +1126,9 @@ function HUD_Draw()
 		
 	elseif(GAME.int_gamestate == 3) then -- Post
 		--print(GAME.ui.bDrawBigScroll)
-		if(GAME.ui.bDrawBigScroll) then
+		--if(GAME.ui.bDrawBigScroll) then
 			--DrawBanner("Congratulations")
-		end
+		--end
 	end
 	--UI_GameBanner()
 	--UI_DrawGameHeader()
@@ -1145,7 +1152,7 @@ function hidehud(name)
 	end
 end
 
-hook.Add("HUDPaint", "ShowServerHud", hud) -- I'll explain hooks and functions in a second
+hook.Add("HUDPaint", "ShowServerHud", HUD_Draw) -- I'll explain hooks and functions in a second
 hook.Add("HUDShouldDraw", "RemoveHud", hidehud)
 
 int_cnt = 0
@@ -1154,7 +1161,7 @@ function GM:PlayerSwitchWeapon(player, oldWeapon, newWeapon)
 	--newWeapon.GetPrintName()
 
 	int_cnt = int_cnt +1
-	fbuffer:push(player:Nick() .. "Changed " .. int_cnt .. " Times")
+	print(player:Nick() .. "Changed " .. int_cnt .. " Times")
 
 	--fbuffer:PrintTable()
 	--icon:SetModel( newWeapon:GetModel() )

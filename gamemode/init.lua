@@ -12,6 +12,8 @@ AddCSLuaFile("shared.lua")
 AddCSLuaFile("gui/team_menu.lua")
 AddCSLuaFile("gui/loadout_admin.lua")
 AddCSLuaFile("gui/squad_request.lua")
+AddCSLuaFile("cl_sound.lua")
+AddCSLuaFile("cl_hud.lua")
 
 
 --include("/loadout.lua")

@@ -17,7 +17,7 @@ function ENT:Initialize()
 
 	self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetRenderMode( RENDERMODE_NORMAL )
-  self:SetModel( "models/props_borealis/bluebarrel001.mdl" )
+    self:SetModel( "models/props_borealis/bluebarrel001.mdl" )
     --self:SetColor( Color( 250, 50, 50 ))
 
 end

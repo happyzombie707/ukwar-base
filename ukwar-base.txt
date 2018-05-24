@@ -1,11 +1,9 @@
-"Gamemode"
+"ukwar"
 {
 	"base"		"base"
-	"title"		"UKWAR-Dev"
+	"title"		"ukwar"
 	"maps"		"^gm_"
 	"menusystem"	"1"
 	"workshopid"	""
-	
-	"settings"
 
 }

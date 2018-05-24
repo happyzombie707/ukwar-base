@@ -32,7 +32,7 @@ include( 'gravitygun.lua' )
 include( 'player_shd.lua' )
 include( 'animations.lua' )
 
-include( 'player/player_ext.lua' )
+--include( 'player/player_ext.lua' )
 
 GM.Name			= "Base Gamemode"
 GM.Author		= "Garry Newman"

@@ -1,6 +1,7 @@
 print("ENTERED game.lua")
-include ("func.lua")
-include('sound.lua')
+AddCSLuaFile()
+--include ("func.lua")
+--include('sound.lua')
 
 DEBUG_VERBOSE = false
 -- 13

@@ -4,7 +4,7 @@ net.Receive( "ShowLoadoutAdmin", function ()
 
     local cached_loadouts = {}
 
-    local
+    --local
 
     --Create panel elements
     local Frame = vgui.Create( "DFrame" )

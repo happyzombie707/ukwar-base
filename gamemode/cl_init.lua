@@ -14,7 +14,7 @@ include( "cl_scoreboard.lua" )
 include( "cl_targetid.lua" )
 include( "cl_hudpickup.lua" )
 include( "cl_spawnmenu.lua" )
-include( "player/player_ext.lua" )
+--include( "player/player_ext.lua" )
 
 --include( "cl_pickteam.lua" )
 include( "cl_voice.lua" )
