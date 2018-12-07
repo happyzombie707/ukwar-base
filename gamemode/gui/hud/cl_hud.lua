@@ -1,6 +1,7 @@
 ﻿AddCSLuaFile()
 
 include("game.lua")
+include("hud_background.lua")
 --include("cl_terminal.lua")
 --include("cl_graphics.lua")
 
@@ -28,7 +29,7 @@ local SCREENSPACE_COLOR_STATE = {
 	-- 1 Means no change
 	[ "$pp_colour_contrast" ] = 1,
 	[ "$pp_colour_colour" ] = 1,
-	
+
 	-- 0 means no change
 	[ "$pp_colour_mulr" ] = 0,
 	[ "$pp_colour_mulg" ] = 0.00,
@@ -97,8 +98,8 @@ function POST_PROCESS_THINK()
 		-- Parse display modifiers
 		for i = 1, 8 do
 			if( __INT_FRAME_TIME < SCREENSPACE_MODIFIER[i].time ) then
-				SCREENSPACE_MODIFIER[i].lerp = Lerp( SCREENSPACE_MODIFIER[i].time - __INT_FRAME_TIME, 
-													SCREENSPACE_MODIFIER[i].start, 
+				SCREENSPACE_MODIFIER[i].lerp = Lerp( SCREENSPACE_MODIFIER[i].time - __INT_FRAME_TIME,
+													SCREENSPACE_MODIFIER[i].start,
 													SCREENSPACE_MODIFIER[i].target)
 				SCREENSPACE_COLOR_STATE[POST_PROCESS_KEY_TABLE[i]] = SCREENSPACE_MODIFIER[i].lerp
 			else
@@ -112,18 +113,18 @@ function POST_PROCESS_THINK()
 		DrawColorModify( SCREENSPACE_COLOR_STATE )
 
 		if(__INT_FRAME_TIME < SCREENSPACE_MODIFIER[10].time) then
-			SCREENSPACE_MODIFIER[10].lerp = Lerp( SCREENSPACE_MODIFIER[10].time - __INT_FRAME_TIME, 
-													SCREENSPACE_MODIFIER[10].start, 
+			SCREENSPACE_MODIFIER[10].lerp = Lerp( SCREENSPACE_MODIFIER[10].time - __INT_FRAME_TIME,
+													SCREENSPACE_MODIFIER[10].start,
 													SCREENSPACE_MODIFIER[10].target)
-			DrawBloom( 0.65, SCREENSPACE_MODIFIER[10].lerp, 9, 9, 1, 1, 
+			DrawBloom( 0.65, SCREENSPACE_MODIFIER[10].lerp, 9, 9, 1, 1,
 							SCREENSPACE_MODIFIER[10].lerp * 0.2,
 							SCREENSPACE_MODIFIER[10].lerp * 0.2,
 							SCREENSPACE_MODIFIER[10].lerp * 0.2)
 		end
 
 		if(__INT_FRAME_TIME < SCREENSPACE_MODIFIER[11].time) then
-			SCREENSPACE_MODIFIER[10].lerp = Lerp( SCREENSPACE_MODIFIER[11].time - __INT_FRAME_TIME, 
-													SCREENSPACE_MODIFIER[11].start, 
+			SCREENSPACE_MODIFIER[10].lerp = Lerp( SCREENSPACE_MODIFIER[11].time - __INT_FRAME_TIME,
+													SCREENSPACE_MODIFIER[11].start,
 													SCREENSPACE_MODIFIER[11].target)
 			DrawMotionBlur( 0.4, SCREENSPACE_MODIFIER[11].lerp , 1)
 		end
@@ -151,22 +152,22 @@ end
 --util.PrecacheSound(hitsound);
 
 local function CalculateBezierPoint(t, p0, p1, p2, p3)
-  --float 
+  --float
   local u = t - 1
   --u = u – t
-  
-  --float 
+
+  --float
   local tt = t*t
-  
-  --float 
+
+  --float
   local uu = u*u
-  
-  --float 
+
+  --float
   local uuu = uu * u
-  
-  --float 
+
+  --float
   local ttt = tt * t
- 
+
   local p = uuu * p0		--first term
   p = p + 3 * uu * t * p1		--second term
   p = p + 3 * u * tt * p2		--third term
@@ -197,20 +198,20 @@ hook.Add("ScalePlayerDamage", "hitmarker_scaleplayerdamage", function(ply, hitgr
 
 	if (dmginfo:GetAttacker():IsPlayer() and dmginfo:GetAttacker() == LocalPlayer()) then
 		alpha = 255;
-		
+
 		print("Boop: ", SCREENSPACE_COLOR_STATE[5])
 
-		
+
 
 		--POST_PROCESS_ADD(10, 0, 3, CurTime() + 1)
 		--POST_PROCESS_ADD(11, 0, 3, CurTime() + 5)
-		
+
 		--POST_PROCESS_ADD(5, 1, 3, CurTime() + 1)
 
 		--POST_PROCESS_ADD(7, 0, 5, CurTime() + 1)
 		--POST_PROCESS_ADD(8, 0, 5, CurTime() + 1)
 		--SCREENSPACE_COLOR_STATE["$pp_colour_mulr"] = 5
-		
+
 		--if(SCREEN_SCREENSPACE_MOD) then
 			DrawColorModify( SCREENSPACE_COLOR_STATE )
 		--end
@@ -223,11 +224,11 @@ end);
 
 local nextFireTime = 0;
 hook.Add("CreateMove", "hitmarker_npc", function(cmd)
-	if (!LocalPlayer():Alive() 
-		or !LocalPlayer():KeyDown(IN_ATTACK) 
-		or LocalPlayer():GetActiveWeapon():Clip1() 
-		<= 0 or GetConVarNumber("hitmarker_enabled") 
-		!= 1 or GetConVarNumber("hitmarker_npc") != 1) 
+	if (!LocalPlayer():Alive()
+		or !LocalPlayer():KeyDown(IN_ATTACK)
+		or LocalPlayer():GetActiveWeapon():Clip1()
+		<= 0 or GetConVarNumber("hitmarker_enabled")
+		!= 1 or GetConVarNumber("hitmarker_npc") != 1)
 	then return; end
 
 	if (LocalPlayer():GetEyeTrace().Entity:IsNPC()) then
@@ -235,7 +236,7 @@ hook.Add("CreateMove", "hitmarker_npc", function(cmd)
 		if (nextFireTime < next_primary_fire) then
 			nextFireTime = next_primary_fire;
 			alpha = 255;
-		
+
 			--if (GetConVarNumber("hitmarker_sound") == 1) then
 			--	LocalPlayer():EmitSound(hitsound, 100);
 			--end
@@ -254,7 +255,7 @@ end);
 --	if ( self.bAnimated ) then
 --		self:RunAnimation()
 --	end
-	
+
 	--local t = Entity:GetAngles()
 	--t:Normalize()
 	--print(t)
@@ -365,7 +366,7 @@ function HUD_DOF_Think()
 	end
 end
 function HUD_DOFFadeTo(
-	--In_int_dof_length, 
+	--In_int_dof_length,
 	Target)
 
 	_int_doftarget = Target
@@ -396,7 +397,7 @@ function HUD_DOFStart(int_start, int_to)
 	_bdof_run = true
 
 	DOF_Start()
-	
+
 end
 
 function UI_Draw_Terminal()
@@ -404,13 +405,13 @@ function UI_Draw_Terminal()
 	surface.SetDrawColor( 0, 0, 0, 255 )
 	surface.DrawRect( 0, 0, ScrW(), ScrH())
 
-	draw.SimpleText("Connecting to uplink..........[Ok]\nCongratulations soldier!", 
+	draw.SimpleText("Connecting to uplink..........[Ok]\nCongratulations soldier!",
 		"Trebuchet18",
 		0 + CONST_INT_BOX_MARGIN,
-		0 + CONST_INT_BOX_MARGIN, 
+		0 + CONST_INT_BOX_MARGIN,
 		Color(255,255,255,255))
-	
-	
+
+
 	--draw.RoundedBox( 0,
 	--0,0,
 	--ScrW(),
@@ -427,10 +428,10 @@ function UI_Draw3D_Hud_SquadBar()
 	HudMatrix:Rotate(vAngle )
 	--HudMatrix:Rotate( Angle( 0,  math.sin( CurTime() /100 ) *10 ), 0 )
 	cam.PushModelMatrix( HudMatrix )
-	
+
 	surface.DrawRect( 100, 100, 200, 300)
 	surface.SetFont( "Trebuchet18" )
-	surface.SetTextColor( 255, 255, 255, 255 )	
+	surface.SetTextColor( 255, 255, 255, 255 )
 	--	surface.SetTextPos( w/2, h/2 )
 	surface.DrawText( "LOLLOLOLOL" )
 	cam.PopModelMatrix()
@@ -438,22 +439,32 @@ end
 
 
 function UI_Draw_NDA_USER()
-	draw.SimpleText("[" ..LocalPlayer():Nick() .. "]", 
-			"HBF_HL",
-			ScrW() - 200,
-			ScrH() - 200, 
-			Color(255,255,255,210))
+
 end
 
+--[[
+    Name: Get_Squad
+    Desc: Get all members of the local players'
+]]
 function Get_Squad()
-	
+	local squad = {}
+    for k, v in pairs(team.GetPlayers(LocalPlayer():Team())) do
+        squad[k] = {name=v:Nick(), c=0, i='+', v=false, l=math.random(100), v:Alive()}
+    end
+
+    return squad
 end
 
+
+--[[
+    name: UI_Draw_Hud_SquadBar
+    desc: Draws the squad bar in the hud
+]]
 function UI_Draw_Hud_SquadBar()
 	-- Height is number of members up from the bottom
 	-- Min is 4, max is 10
-	local squad = {
-		{
+	local squad = Get_Squad()
+--[[		{
 			name="Harry", -- Name string
 			c=0, --  Class name, this'll be gotten from the lookup table, rather than the string'
 			i="+",	-- Icon
@@ -493,60 +504,64 @@ function UI_Draw_Hud_SquadBar()
 			l=100,
 			s=true
 		}
-	}
+	}]]
 
 	local dbg_squadnum = table.Count(squad)
 	local yoff =  ScrH() - CONST_INT_SCREEN_PADDING - ((CONST_INT_BOX_PADDING + CONST_INT_SQUADBOX_HEIGHT * dbg_squadnum))
 	local xoff = CONST_INT_SCREEN_PADDING
 	local width, height;
-	
-		
 
 
-	
-	draw.SimpleText("Squad Table ->" , 
+    --draw squad name and capacity
+	draw.SimpleText("Squad Table -> ["..dbg_squadnum.."/5]" ,
 			"Trebuchet18",
 			xoff,
-			yoff- 24, 
+			yoff- 24,
 			Color(255,255,255,210))
 
-	--PrintTable(squad)
-	draw.RoundedBox( 0, 
+
+    --draw background
+	draw.RoundedBox( 0,
 		CONST_INT_BOX_MARGIN,					-- Width
 		yoff - CONST_INT_BOX_MARGIN,			-- Height offset, full x axis - squadbox height and number of boxes
 
-		CONST_INT_SQUADBOX_WIDTH + CONST_INT_BOX_MARGIN_TOTAL, 
+		CONST_INT_SQUADBOX_WIDTH + CONST_INT_BOX_MARGIN_TOTAL,
 		CONST_INT_BOX_MARGIN + (CONST_INT_BOX_PADDING + CONST_INT_SQUADBOX_HEIGHT * dbg_squadnum),	-- Height
 		Color(37, 37, 37, 210 )
-		)
+	)
 
-	for i = 1, dbg_squadnum, 1 do
-		local idx = i-1
+
+    --for each squad member
+    for k, v in pairs(squad) do
+--	for i = 1, dbg_squadnum, 1 do
+		local idx = k-1
 		--print("Index --> ", i)
-		draw.RoundedBox( 0, 
+        --draw background boxes
+		draw.RoundedBox( 0,
 			xoff, -- Width
 			yoff - CONST_INT_BOX_MARGIN + idx * (CONST_INT_SQUADBOX_HEIGHT + CONST_INT_BOX_PADDING),	-- Go down box drawing at each offset
-			CONST_INT_SQUADBOX_WIDTH, CONST_INT_SQUADBOX_HEIGHT,	
+			CONST_INT_SQUADBOX_WIDTH, CONST_INT_SQUADBOX_HEIGHT,
 			Color(37, 37, 37, 210 )
 		)
 
+        --??
 		surface.SetFont( "Trebuchet24" )
-		width, height = surface.GetTextSize( squad[i].name )
+		width, height = surface.GetTextSize( v.name )
 		if(width > CONST_INT_SQUADBOX_WIDTH /2) then
-		
+            v.name = string.sub(v.name, 1, 10) .. "..."
 		end
 
 		-- Don't question it!'
-		draw.SimpleText("[" .. i .. "] " .. (width < CONST_INT_SQUADBOX_WIDTH/2 + 60 and squad[i].name or (string.sub(squad[i].name, 1, 10) .. "...")) .. " [" .. CONST_STR_CLASS_ASCII_TABLE[squad[i].c+1] .."]" , 
+		draw.SimpleText("[" .. k .. "] " .. v.name .. " [" .. CONST_STR_CLASS_ASCII_TABLE[v.c+1] .."]" ,
 			"Trebuchet18",
 			xoff,
-			yoff - CONST_INT_BOX_MARGIN + idx * (CONST_INT_SQUADBOX_HEIGHT + CONST_INT_BOX_PADDING), 
+			yoff - CONST_INT_BOX_MARGIN + idx * (CONST_INT_SQUADBOX_HEIGHT + CONST_INT_BOX_PADDING),
 			Color(255,255,255,210))
 		--xoff + (CONST_INT_SQUADBOX_WIDTH/2) + 15,
-		draw.SimpleText(squad[i].v and "V" or "/V", 
+		draw.SimpleText(v.v and "V" or "/V",
 			"Trebuchet18",
 			xoff + CONST_INT_SQUADBOX_WIDTH - 20,
-			yoff - CONST_INT_BOX_MARGIN + idx * (CONST_INT_SQUADBOX_HEIGHT + CONST_INT_BOX_PADDING), 
+			yoff - CONST_INT_BOX_MARGIN + idx * (CONST_INT_SQUADBOX_HEIGHT + CONST_INT_BOX_PADDING),
 			Color(255,255,255,210))
 		--print(CONST_STR_CLASS_ASCII_TABLE[squad[i].c+1])
 		-- .. " [" .. CONST_STR_CLASS_ASCII_TABLE[squad[i].c+1] .."]"
@@ -577,10 +592,10 @@ function DrawBanner(In_str_text)
 		banner_offset = 0
 	end
 
-	--draw.SimpleText(In_str_text, 
+	--draw.SimpleText(In_str_text,
 	--		"Trebuchet24",
 	--		banner_offset,
-	--		ScrH() / 2, 
+	--		ScrH() / 2,
 	--		Color(255,255,255,210))
 	--banner_runtime = CurTime()
 
@@ -590,11 +605,11 @@ function DrawBanner(In_str_text)
 		if(	off > ScrW() + width) then
 			off = banner_offset - (width * i) - (50 * i)
 		end
-		
-		draw.SimpleText(In_str_text, 
+
+		draw.SimpleText(In_str_text,
 			"Trebuchet24",
 			off,
-			ScrH() / 2, 
+			ScrH() / 2,
 			Color(255,255,255,210))
 	end
 	banner_runtime = CurTime()
@@ -616,10 +631,10 @@ function UI_Warning_ChangeState(In_int_state, In_int_time)
 	--	255 * ((math.cos(__INT_DELTA_TIME)+1)/2)
 	surface.SetFont( "HBF_HL" )
 	local width, height = surface.GetTextSize( str_outstr )
-	draw.SimpleText("Alert!", 
+	draw.SimpleText("Alert!",
 			"HBF_HM",
 			ScrW() /2 - 100/2,
-			40, 
+			40,
 			Color(
 				255,
 				255,
@@ -630,10 +645,10 @@ function UI_Warning_ChangeState(In_int_state, In_int_time)
 	In_int_shift = 255 * ((math.cos(CurTime()) + 1) / 2)
 	surface.SetDrawColor( 37, 37, 37, 210 )
 	surface.DrawRect( ScrW() /2 - width/2 - 5, 80, width + 10, height )
-	draw.SimpleText(str_outstr, 
+	draw.SimpleText(str_outstr,
 			"HBF_HL",
 			ScrW() /2 - width/2,
-			80, 
+			80,
 			Color(
 				204 + In_int_shift,
 				102 + In_int_shift,
@@ -661,9 +676,9 @@ function UI_DrawWarningNoBase(str_string)
 	local srh = ScrH() - 80
 	local scw = ScrW()
 	local msg = "Warning, required game assets have not been downloaded. Please visit the steam community for the asset pack, or open the menu, and click 'GAME ASSETS'",
-		
 
-	draw.RoundedBox( 0, 
+
+	draw.RoundedBox( 0,
 		0, srh,
 		ScrW(), 40,-- team.GetColor(k)
 		Color(37, 37, 37, 210 )
@@ -671,10 +686,10 @@ function UI_DrawWarningNoBase(str_string)
 
 	surface.SetFont( "Trebuchet24" )
 	local width, height = surface.GetTextSize( msg )
-	draw.SimpleText(msg, 
+	draw.SimpleText(msg,
 		"Trebuchet24",
 		ScrW()/2 - width/2,
-		srh + 5, 
+		srh + 5,
 		Color(255,255,255,210))
 end
 
@@ -696,20 +711,20 @@ function UI_DrawTeamHigherachy()
 
 	for i = 1, count - 3, 1 do
 		--print(i, tblTeams[i].Color)
-		draw.RoundedBox(INT_NO_BORDERS, 
-			xoff - w * i, 
-			0, 
-			w, 
-			h, 
+		draw.RoundedBox(INT_NO_BORDERS,
+			xoff - w * i,
+			0,
+			w,
+			h,
 			tblTeams[i].Color)
-		
 
-		draw.SimpleText(tblTeams[i].Name .. "[" .. tblTeams[i].Score .. "]", 
-		"Trebuchet18", 
+
+		draw.SimpleText(tblTeams[i].Name .. "[" .. tblTeams[i].Score .. "]",
+		"Trebuchet18",
 		xoff - w * i + 5,
-		16 /2 - 2, 
+		16 /2 - 2,
 		Color(255,255,255,210))
-		
+
 	end
 end
 
@@ -746,22 +761,22 @@ function UI_DrawGameSpec()
 
 	local width, height = surface.GetTextSize( str_head )
 	draw.SimpleText("Specification",
-		"HBF_HL", 
+		"HBF_HL",
 		ScrW() - ScrW() / 3,
-		srh, 
+		srh,
 		Color(255,255,255,210))
 
 	local offset = 40
 	draw.SimpleText("Gamemode:",
-		"Trebuchet24", 
+		"Trebuchet24",
 		ScrW() - ScrW() / 3,
-		srh + offset * 1, 
+		srh + offset * 1,
 		Color(255,255,255,210))
 
 		draw.SimpleText("Gamemode:",
-		"Trebuchet24", 
+		"Trebuchet24",
 		ScrW() - ScrW() / 3,
-		srh + offset * 2, 
+		srh + offset * 2,
 		Color(255,255,255,210))
 
 end
@@ -773,31 +788,31 @@ function UI_DrawPreGameScreen()
 	surface.SetFont( "HBF_HX" )
 	local width, height = surface.GetTextSize( str_head )
 	draw.SimpleText(str_head,
-		"HBF_HX", 
+		"HBF_HX",
 		ScrW() /2 - width/2,
-		srh, 
+		srh,
 		Color(255,255,255,210))
 
 	local len = string.len(str_spntext)
 	if(int_pregameoff < len and ltime < CurTime()) then
 		int_pregameoff = int_pregameoff +1
 		ltime = CurTime() + 0.1
-		
+
 		--print("idx: ", int_spnidx, string.sub(str_spntext, 1, int_pregameoff))
 	end
 	SpinSpinner()
 	-- .. SpinSpinner()
 	draw.SimpleText(
-		string.sub(str_spntext, 1, int_pregameoff) 
-		.. ((int_pregameoff < len) and 
-			--GetSpinner() 
+		string.sub(str_spntext, 1, int_pregameoff)
+		.. ((int_pregameoff < len) and
+			--GetSpinner()
 			-- Don't question it'
 			((GetTimeSecondsMOD(1) > 0.8) and " █" or "")
-			or ""), 
-		
-		"HBF_HL", 
+			or ""),
+
+		"HBF_HL",
 		ScrW() /2 - width/2 + 10,
-		srh + height, 
+		srh + height,
 		Color(255,255,255,210))
 end
 
@@ -808,14 +823,14 @@ function UI_DrawWaitGameScreen()
 	surface.SetFont( "HBF_HX" )
 	local width, height = surface.GetTextSize( str_head )
 	draw.SimpleText(str_head,
-		"HBF_HX", 
+		"HBF_HX",
 		ScrW() /2 - width/2,
-		srh, 
+		srh,
 		Color(255,255,255,210))
-	draw.SimpleText("The game was paused\nIf it persists please speak to an admin.", 
-		"HBF_HL", 
+	draw.SimpleText("The game was paused\nIf it persists please speak to an admin.",
+		"HBF_HL",
 		ScrW() /2 - width/2 + 10,
-		srh + height, 
+		srh + height,
 		Color(255,255,255,210))
 end
 
@@ -829,35 +844,35 @@ function UI_DrawEndScreen()
 	surface.SetFont( "HBF_HX" )
 	local width, height = surface.GetTextSize( text )
 
-	draw.SimpleText(text, 
-		"HBF_HX", 
+	draw.SimpleText(text,
+		"HBF_HX",
 		ScrW() /2 - width/2,
-		srh, 
+		srh,
 		Color(255,255,255,210))
 
-	draw.SimpleText(game.GetMap() .. ": Squad Death Match", 
-		"HBF_HL", 
+	draw.SimpleText(game.GetMap() .. ": Squad Death Match",
+		"HBF_HL",
 		ScrW() /2 - width/2 + 10,
-		srh + height, 
+		srh + height,
 		Color(255,255,255,210))
 end
 
 function UI_GameBanner()
-	
+
 	local text = "YOUR TEAM WON"
 	surface.SetFont( "HBF_HM" )
 	local width, height = surface.GetTextSize( text )
 
 	-- TODO: Add beziere transformations if it's performance friendly'
-	--local extend = 1 / 1 * 
+	--local extend = 1 / 1 *
 	--CalculateBezierPoint(2 * )
-	
-	draw.SimpleText(text, 
-		"HBF_HM", 
+
+	draw.SimpleText(text,
+		"HBF_HM",
 		ScrW() /2 - width/2,
-		ScrH() /3, 
+		ScrH() /3,
 		Color(255,255,255,210))
-	-- (width /2), 
+	-- (width /2),
 	--print("W: ", width, "H: ", health)
 end
 
@@ -865,8 +880,8 @@ function UI_DrawGameHeader()
 	local width = 32
 	local xoff = ScrW() /2 - width/2
 	for k = 1, 5, 1 do
-		draw.RoundedBox( 0, 
-		xoff - (32 * k), 
+		draw.RoundedBox( 0,
+		xoff - (32 * k),
 		32, width, 32, team.GetColor(k)
 		--Color(37, 37, 37, 210 )
 		)
@@ -879,13 +894,13 @@ function UI_DrawGameHeader_Timer()
 	--SliceMilli(
 	--	CurTime()
 	--)
-	
 
-	
+
+
 	local ColorVec--Color(255, 255, 255, 255)
 	if( GAME:GameTimerTarget() > CurTime() ) then
 		timecnt = math.abs(CurTime() - GAME:GameTimerTarget())
-		
+
 		if( GAME:GameTimerTarget() - CurTime() < 60) then
 			--print("Timer remainder, Value: ", GAME:GameTimerTarget() - CurTime() )
 			-- Calculate expensive cosine fade, consolidate into single value in header
@@ -910,8 +925,8 @@ function UI_DrawGameHeader_Timer()
 
 	draw.RoundedBox( 0, xoff, 0, width, 32, Color(37, 37, 37, 210 ))
 	draw.SimpleText(
-		--string.format( "%.1f", 	
-		GenerateTimeString(timecnt) 
+		--string.format( "%.1f",
+		GenerateTimeString(timecnt)
 		--)`
 		, "DermaLarge",
 		ScrW() / 2, 0, ColorVec, TEXT_ALIGN_CENTER )
@@ -926,32 +941,32 @@ local sy = 1.3
 function UI_Hud_Right()
 	local w = 128 * sx
 	local h = 64 * sy
-	--surface.DrawTexturedRectRotated( 
-	--	ScrW() - w - px, 
-	--	ScrH() - h - py, 
-	--	w, 
+	--surface.DrawTexturedRectRotated(
+	--	ScrW() - w - px,
+	--	ScrH() - h - py,
+	--	w,
 	--	h, 30 )
-	draw.RoundedBox(INT_NO_BORDERS, 
-		ScrW() - w - px, 
-		ScrH() - h - py, 
-		w, 
-		h, 
+	draw.RoundedBox(INT_NO_BORDERS,
+		ScrW() - w - px,
+		ScrH() - h - py,
+		w,
+		h,
 		Color(37,37,37,210))
 
 	local health = LocalPlayer():Health()
-	draw.RoundedBox(INT_NO_BORDERS, 
-		ScrW() - w - 5, 
-		ScrH() - 15 - py - 5, 
+	draw.RoundedBox(INT_NO_BORDERS,
+		ScrW() - w - 5,
+		ScrH() - 15 - py - 5,
 		-- Scale health bar to parent box
-		health * w / 100 - 10, 
-		15, 
+		health * w / 100 - 10,
+		15,
 		Color(210,210,210,255))
 	--draw.RoundedBox(INT_NO_BORDERS, 5, ScrH() - 15 - 20, health * 5, 15, Color(255,0,0,255))
-	
-	draw.SimpleText(health, 
-		"HudScoreFont", 
-		ScrW() - w - 5, 
-		ScrH() - 15 - 40, 
+
+	draw.SimpleText(health,
+		"HudScoreFont",
+		ScrW() - w - 5,
+		ScrH() - 15 - 40,
 		Color(255,255,255,210))
 
 	local ammo = GetAmmoCount(LocalPlayer():GetActiveWeapon())
@@ -962,17 +977,17 @@ function UI_Hud_Right()
 		loaded = 0
 	end
 	--print("Ammo", ammo)
-	draw.SimpleText(ammo, 
+	draw.SimpleText(ammo,
 		"HBF_HL",
 		ScrW() - px - 100,
-		ScrH() - 15 - 40, 
+		ScrH() - 15 - 40,
 		Color(255,255,255,210))
-	
+
 	--print("Ammo", ammo)
-	draw.SimpleText((loaded > 0) and loaded or "-", 
+	draw.SimpleText((loaded > 0) and loaded or "-",
 		"DermaLarge",
 		ScrW() - px - w,
-		ScrH() - 15 - 70, 
+		ScrH() - 15 - 70,
 		Color(255,255,255,210))
 end
 
@@ -981,6 +996,7 @@ local ply = FindMetaTable('Player') --so we can add functions to player objects
 function ply:OnScreen()
 	return CanISee[self].visible, {[x] = CanISee[self].x, [y] = CanISee[self].y}
 end
+
 function HUD_Util_BoolToText(In_int_bool)
 	return ((In_int_bool) and "[Yes]" or "[No]")
 end
@@ -1009,7 +1025,7 @@ function HUD_Draw()
 		if((v:IsPlayer() or v:IsNPC()) and v:Health() > 0) then
 			local vec = v:GetPos()
 			local vDistance = pVec:Distance( vec )
-			if(vDistance > 0  and vDistance < CONST_INT_HUD_OVERLAY_RANGEZFAR) then
+			if(--[[vDistance > 0  and vDistance < CONST_INT_HUD_OVERLAY_RANGEZFAR]]true) then
 				--LocalPlayer():SetEyeAngles(	(vec - LocalPlayer:GetPos() ):Angle() )
 				local TNvec = ( vec - pVec )--:Normalize()
 				local Tang = TNvec:Angle()
@@ -1042,7 +1058,7 @@ function HUD_Draw()
 
 				surface.SetDrawColor( ((v:Health() > CONST_INT_HEALTH_CLIP_LIMIT) and 231 or 255 ), ((v:Health() > CONST_INT_HEALTH_CLIP_LIMIT) and 255 or 0), 0, 255 )
 				surface.DrawRect( xoff , yoff, (v:Health() * scale) * CONST_INT_HUD_ENT_HEALTH_SCALE, height)
-				
+
 				if(v:IsPlayer()) then
 					if(v:IsAdmin()) then
 						draw.SimpleText("Admin", "ChatFont", vScreen.x - 50 * scale,vScreen.y, Color(255,255,255,210))
@@ -1080,10 +1096,10 @@ function HUD_Draw()
 	end
 
 	--for _, v in pairs( ents.GetAll() ) do
-	--	if v:IsNPC() then 
-		
-		
-		
+	--	if v:IsNPC() then
+
+
+
 	--	end
 	--end
 
@@ -1093,14 +1109,14 @@ function HUD_Draw()
 	--if( GAME.ui.bDrawWarningState) then
 		--UI_Warning_ChangeState(1, 0)
 	--end
-		
+
 	--if(GAME.ui.bDrawTerminalClear) then
 	--	UI_Draw_Terminal()
 	--	return
 --	end
 
 --	if ( GAME.ui.bDraw_GameNotice ) then
-		UI_GameBanner()
+		--UI_GameBanner()
 --	end
 --	if ( GAME.ui.bDrawRightHud ) then
 		--UI_Hud_Right()
@@ -1110,7 +1126,7 @@ function HUD_Draw()
 	--RenderCustom()
 	--UI_Draw()
 	--UI_DrawWarningNoBase()
-	
+
 	UI_DrawTeamHigherachy()
 	UI_Draw_Hud_SquadBar()
 	--UI_DrawGameHeader_Timer()
@@ -1119,11 +1135,11 @@ function HUD_Draw()
 	elseif(GAME.int_gamestate == 1) then -- Pregame
 		UI_DrawPreGameScreen()
 
-		
+
 	elseif(GAME.int_gamestate == 2) then -- Game
 		int_spnidx = 0
 
-		
+
 	elseif(GAME.int_gamestate == 3) then -- Post
 		--print(GAME.ui.bDrawBigScroll)
 		--if(GAME.ui.bDrawBigScroll) then
@@ -1140,7 +1156,7 @@ end
 function hidehud(name)
 	for k, v in pairs(
 	{
-	"CHudHealth", 
+	"CHudHealth",
 	"CHudBattery",
 	"CHudAmmo",
 	"CHudSecondaryAmmo",
@@ -1152,6 +1168,17 @@ function hidehud(name)
 	end
 end
 
+function HUD_BG_Draw()
+
+    HUD_Health_BG()
+    HUD_Armour_BG()
+    HUD_Squad_BG()
+    HUD_Info_BG()
+
+end
+
+
+hook.Add("HUDPaintBackground", "HUDBackground", HUD_BG_Draw)
 hook.Add("HUDPaint", "ShowServerHud", HUD_Draw) -- I'll explain hooks and functions in a second
 hook.Add("HUDShouldDraw", "RemoveHud", hidehud)
 

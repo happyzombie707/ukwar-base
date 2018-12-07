@@ -6,7 +6,9 @@ include( "shared.lua" )
 
 --AddCSLuaFile("cl_deathnotice.lua")
 --include( "cl_deathnotice.lua" )
-include( "cl_hud.lua" )
+include( "game.lua" )
+include("gui/hud/hud_background.lua")
+include( "gui/hud/cl_hud.lua" )
 include( "cl_sound.lua" )
 --include( "dof.lua" )
 
@@ -84,7 +86,7 @@ function GM:PlayerBindPress( pl, bind, down )
 
 end
 
-
+--[[
 hook.Add( "HUDShouldDraw", "HideHUD", function( name )
 	for k, v in pairs({"CHudHealth", "CHudBattery", "CHudAmmo", "CHudSecondaryAmmo", })do
 		if name == v then return false end
@@ -98,7 +100,7 @@ hook.Run("HUDShouldDraw", "CHudAmmo")
 --[[---------------------------------------------------------
 	Name: gamemode:HUDShouldDraw( name )
 	Desc: return true if we should draw the named element
------------------------------------------------------------]]
+-----------------------------------------------------------
 function GM:HUDShouldDraw( name )
 
 	-- Allow the weapon to override this
@@ -122,19 +124,8 @@ end
 --[[---------------------------------------------------------
 	Name: gamemode:HUDPaint()
 	Desc: Use this section to paint your HUD
------------------------------------------------------------]]
+-----------------------------------------------------------
 function GM:HUDPaint()
-	--[[
-	hook.Run( "HUDDrawTargetID" )
-	hook.Run( "HUDDrawPickupHistory" )
-	hook.Run( "DrawDeathNotice",
-	--0.85
-	 1
-	 ,
-	  0.04
-	 --0
-	  )
-]]
 
 self.BaseClass:HUDPaint()
 local ply = LocalPlayer()
@@ -158,7 +149,7 @@ surface.SetTextPos( 240, 735 )
 surface.SetFont( "Myfont" )
 surface.DrawText( "Armor: "..ARM) //Armor
 
-end
+end]]
 
 --[[---------------------------------------------------------
 	Name: gamemode:HUDPaintBackground()

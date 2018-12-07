@@ -1,5 +1,5 @@
-print("ENTERED game.lua")
 AddCSLuaFile()
+print("ENTERED game.lua")
 --include ("func.lua")
 --include('sound.lua')
 

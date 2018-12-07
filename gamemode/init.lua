@@ -5,18 +5,20 @@
 
 --RUNTIME_LOG("ENTERED INIT.LUA")
 
-include( "loadout.lua" )
-include ("player/player_ext.lua")
-AddCSLuaFile("cl_init.lua")
+AddCSLuaFile( "game.lua" )
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("gui/team_menu.lua")
 AddCSLuaFile("gui/loadout_admin.lua")
 AddCSLuaFile("gui/squad_request.lua")
 AddCSLuaFile("cl_sound.lua")
-AddCSLuaFile("cl_hud.lua")
+AddCSLuaFile("gui/hud/cl_hud.lua")
+AddCSLuaFile("gui/hud/hud_background.lua")
+AddCSLuaFile("cl_init.lua")
 
 
 --include("/loadout.lua")
+include ("player/player_ext.lua")
+include( "loadout.lua" )
 include( "sv_player_extend.lua" )
 include( "game.lua" )
 include( "shared.lua" )
